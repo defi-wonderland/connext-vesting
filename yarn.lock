@@ -231,6 +231,24 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
+"@openzeppelin/contracts@4.9.2":
+  version "4.9.2"
+  resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-4.9.2.tgz#1cb2d5e4d3360141a17dbc45094a8cad6aac16c1"
+  integrity sha512-mO+y6JaqXjWeMh9glYVzVu8HYPGknAAnWyxTRhGeckOruyXQMNnlcW6w/Dx9ftLeIQk6N+ZJFuVmTwF7lEIFrg==
+
+"@prb/math@4.0.2":
+  version "4.0.2"
+  resolved "https://registry.yarnpkg.com/@prb/math/-/math-4.0.2.tgz#0bcbc34eb2c49c56b70ded059d0af28c09b7833a"
+  integrity sha512-kJgqvXR6iyU7+N959RzggSFhBdnRuSDnc/bs8u6MzdWw7aYIUaAr+uMVdpP6Dheypjerd7sfJgFOs19FRFhscg==
+
+"@sablier/v2-core@^1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@sablier/v2-core/-/v2-core-1.1.1.tgz#68ec04d3befe4b8957b870b25727a0f0f7427d81"
+  integrity sha512-gi9tYlNm5z29tfRwU/RM3Ljo/yvCpy4cmLosAYkhBTcdheZkqfkhZLgSKFv2OVq+0aKxH+YvzqGlt/ZtDhAeXg==
+  dependencies:
+    "@openzeppelin/contracts" "4.9.2"
+    "@prb/math" "4.0.2"
+
 "@solidity-parser/parser@^0.14.1":
   version "0.14.5"
   resolved "https://registry.yarnpkg.com/@solidity-parser/parser/-/parser-0.14.5.tgz#87bc3cc7b068e08195c219c91cd8ddff5ef1a804"
@@ -1067,9 +1085,6 @@ flatted@^2.0.0:
   resolved "https://registry.yarnpkg.com/flatted/-/flatted-2.0.2.tgz#4575b21e2bcee7434aa9be662f4b7b5f9c2b5138"
   integrity sha512-r5wGx7YeOwNWNlCA0wQ86zKyDLMQr+/RB8xy74M4hTphfmjlijTSSXGuH8rnvKZnfT9i+75zmd8jcKdMR4O6jA==
 
-"forge-std@github:foundry-rs/forge-std#v1.7.3":
-  version "1.7.3"
-  resolved "https://codeload.github.com/foundry-rs/forge-std/tar.gz/2f112697506eab12d433a65fdc31a639548fe365"
 "forge-std@github:foundry-rs/forge-std#v1.7.3":
   version "1.7.3"
   resolved "https://codeload.github.com/foundry-rs/forge-std/tar.gz/2f112697506eab12d433a65fdc31a639548fe365"

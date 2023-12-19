@@ -32,3 +32,4 @@ runs = 1000
 
 [rpc_endpoints]
 mainnet = "${MAINNET_RPC}"
+goerli = "${GOERLI_RPC}"
