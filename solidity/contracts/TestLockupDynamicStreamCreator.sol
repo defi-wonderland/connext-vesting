@@ -9,7 +9,7 @@ import {ud60x18} from '@prb/math/src/UD60x18.sol';
 
 /// @notice Example of how to create a Lockup Dynamic stream.
 /// @dev This code is referenced in the docs: https://docs.sablier.com/contracts/v2/guides/create-stream/lockup-dynamic
-contract LockupDynamicStreamCreator {
+contract TestLockupDynamicStreamCreator {
   IERC20 public constant DAI = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
   ISablierV2LockupDynamic public immutable lockupDynamic;
 
