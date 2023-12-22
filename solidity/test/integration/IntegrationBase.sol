@@ -4,21 +4,23 @@ pragma solidity =0.8.19;
 import {IERC20} from 'isolmate/interfaces/tokens/IERC20.sol';
 import {Test} from 'forge-std/Test.sol';
 
-import {Greeter, IGreeter} from 'contracts/Greeter.sol';
+import {Unlock, IUnlock} from 'contracts/Unlock.sol';
 
 contract IntegrationBase is Test {
-  uint256 internal constant _FORK_BLOCK = 15_452_788;
+  uint256 internal constant _FORK_BLOCK = 18_842_671;
 
-  string internal _initialGreeting = 'hola';
-  address internal _user = makeAddr('user');
   address internal _owner = makeAddr('owner');
-  address internal _daiWhale = 0x42f8CA49E88A8fd8F0bfA2C739e648468b8f9dec;
-  IERC20 internal _dai = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
-  IGreeter internal _greeter;
+  address internal _alice = makeAddr('alice');
+  address internal _nextToken = 0xFE67A4450907459c3e1FFf623aA927dD4e28c67a; // real mainnet NEXT token
+  IUnlock internal _unlock;
+  uint256 internal _startTime;
 
   function setUp() public {
     vm.createSelectFork(vm.rpcUrl('mainnet'), _FORK_BLOCK);
-    vm.prank(_owner);
-    _greeter = new Greeter(_initialGreeting, _dai);
+
+    _startTime = block.timestamp + 10 minutes;
+
+    vm.prank(_alice);
+    _unlock = new Unlock(_startTime, _owner);
   }
 }

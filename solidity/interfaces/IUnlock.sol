@@ -3,11 +3,6 @@ pragma solidity =0.8.19;
 
 import {IERC20} from 'isolmate/interfaces/tokens/IERC20.sol';
 
-/**
- * @title Unlock Contract
- * @author Wonderland
- * @notice Used for unlocking NEXT tokens over time
- */
 interface IUnlock {
   error InsufficientUnlockedSupply();
   error Unauthorized();
