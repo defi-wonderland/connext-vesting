@@ -2,5 +2,5 @@
 pragma solidity =0.8.19;
 
 interface IOwned {
-  function owner() external view returns (address owner_);
+  function owner() external view returns (address _owner);
 }

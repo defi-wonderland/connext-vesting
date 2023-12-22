@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity =0.8.19;
 
-import {IERC20} from 'isolmate/interfaces/tokens/IERC20.sol';
 import {Test} from 'forge-std/Test.sol';
 
 import {Unlock, IUnlock} from 'contracts/Unlock.sol';

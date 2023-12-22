@@ -6,30 +6,33 @@ import {IUnlock} from 'interfaces/IUnlock.sol';
 import {Owned} from 'solmate/auth/Owned.sol';
 
 contract Unlock is Owned, IUnlock {
+  uint256 public constant TOTAL_SUPPLY = 24_960_000 ether;
+
   uint256 public startTime;
   mapping(address _token => uint256 _amount) public withdrawedSupply;
-
-  uint256 public constant TOTAL_SUPPLY = 24_960_000 ether;
 
   constructor(uint256 _startTime, address _owner) Owned(_owner) {
     startTime = _startTime;
   }
 
-  function _unlockedSupply(address _token, uint256 _timestamp) internal view returns (uint256 unlockedSupply_) {
+  function _unlockedSupply(address _token, uint256 _timestamp) internal view returns (uint256 _unlockedSupply) {
     if (_timestamp < startTime + 365 days) {
-      unlockedSupply_ = 0;
+      _unlockedSupply = 0;
     } else {
-      unlockedSupply_ = TOTAL_SUPPLY / 13 + (TOTAL_SUPPLY * 12 / 13) * (_timestamp - startTime - 365 days) / 365 days;
-      unlockedSupply_ -= withdrawedSupply[_token];
+      _unlockedSupply = TOTAL_SUPPLY / 13 + (TOTAL_SUPPLY * 12 / 13) * (_timestamp - startTime - 365 days) / 365 days;
+      _unlockedSupply -= withdrawedSupply[_token];
     }
   }
 
-  function unlockedSupply(address _token) external view returns (uint256 unlockedSupply_) {
-    unlockedSupply_ = _unlockedSupply(_token, block.timestamp);
+  function unlockedSupply(address _token) external view returns (uint256 _unlockedSupplyReturn) {
+    _unlockedSupplyReturn = _unlockedSupply(_token, block.timestamp);
   }
 
-  function unlockedAtTimestamp(address _token, uint256 _timestamp) external view returns (uint256 unlockedSupply_) {
-    unlockedSupply_ = _unlockedSupply(_token, _timestamp);
+  function unlockedAtTimestamp(
+    address _token,
+    uint256 _timestamp
+  ) external view returns (uint256 _unlockedSupplyReturn) {
+    _unlockedSupplyReturn = _unlockedSupply(_token, _timestamp);
   }
 
   function withdraw(address _receiver, address _token, uint256 _amount) external {
