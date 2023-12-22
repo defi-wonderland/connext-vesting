@@ -15,12 +15,13 @@ contract Unlock is Owned, IUnlock {
     startTime = _startTime;
   }
 
-  function _unlockedSupply(address _token, uint256 _timestamp) internal view returns (uint256 _unlockedSupply) {
+  function _unlockedSupply(address _token, uint256 _timestamp) internal view returns (uint256 _unlockedSupplyReturn) {
     if (_timestamp < startTime + 365 days) {
-      _unlockedSupply = 0;
+      _unlockedSupplyReturn = 0;
     } else {
-      _unlockedSupply = TOTAL_SUPPLY / 13 + (TOTAL_SUPPLY * 12 / 13) * (_timestamp - startTime - 365 days) / 365 days;
-      _unlockedSupply -= withdrawedSupply[_token];
+      _unlockedSupplyReturn =
+        TOTAL_SUPPLY / 13 + (TOTAL_SUPPLY * 12 / 13) * (_timestamp - startTime - 365 days) / 365 days;
+      _unlockedSupplyReturn -= withdrawedSupply[_token];
     }
   }
 
