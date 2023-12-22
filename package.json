@@ -32,7 +32,8 @@
     "package.json": "sort-package-json"
   },
   "dependencies": {
-    "isolmate": "github:defi-wonderland/isolmate#59e1804"
+    "isolmate": "github:defi-wonderland/isolmate#59e1804",
+    "solmate": "^6.2.0"
   },
   "devDependencies": {
     "@commitlint/cli": "17.0.3",

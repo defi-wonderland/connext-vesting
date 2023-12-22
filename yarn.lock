@@ -1070,9 +1070,6 @@ flatted@^2.0.0:
 "forge-std@github:foundry-rs/forge-std#v1.7.3":
   version "1.7.3"
   resolved "https://codeload.github.com/foundry-rs/forge-std/tar.gz/2f112697506eab12d433a65fdc31a639548fe365"
-"forge-std@github:foundry-rs/forge-std#v1.7.3":
-  version "1.7.3"
-  resolved "https://codeload.github.com/foundry-rs/forge-std/tar.gz/2f112697506eab12d433a65fdc31a639548fe365"
 
 fs-extra@^11.0.0:
   version "11.1.1"
@@ -2242,6 +2239,11 @@ solhint@3.6.2:
     text-table "^0.2.0"
   optionalDependencies:
     prettier "^2.8.3"
+
+solmate@^6.2.0:
+  version "6.2.0"
+  resolved "https://registry.yarnpkg.com/solmate/-/solmate-6.2.0.tgz#edd29b5f3d6faafafdcf65fe4d1d959b4841cfa8"
+  integrity sha512-AM38ioQ2P8zRsA42zenb9or6OybRjOLXIu3lhIT8rhddUuduCt76pUEuLxOIg9GByGojGz+EbpFdCB6B+QZVVA==
 
 sort-object-keys@^1.1.3:
   version "1.1.3"
