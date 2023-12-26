@@ -1,45 +1,55 @@
 // SPDX-License-Identifier: MIT
-pragma solidity =0.8.19;
+pragma solidity 0.8.20;
 
 import {IERC20} from 'isolmate/interfaces/tokens/IERC20.sol';
 import {IUnlock} from 'interfaces/IUnlock.sol';
-import {Owned} from 'solmate/auth/Owned.sol';
+import {Ownable2Step, Ownable} from '@openzeppelin/contracts/access/Ownable2Step.sol';
 
-contract Unlock is Owned, IUnlock {
-  uint256 public constant TOTAL_SUPPLY = 24_960_000 ether;
+contract Unlock is Ownable2Step, IUnlock {
+  uint256 public totalAmount;
 
   uint256 public startTime;
-  mapping(address _token => uint256 _amount) public withdrawedSupply;
+  mapping(address _token => uint256 _amount) public withdrawnSupply;
 
-  constructor(uint256 _startTime, address _owner) Owned(_owner) {
+  constructor(uint256 _startTime, address _owner, uint256 _totalAmount) Ownable(_owner) {
     startTime = _startTime;
+    totalAmount = _totalAmount;
   }
 
-  function _unlockedSupply(address _token, uint256 _timestamp) internal view returns (uint256 _unlockedSupplyReturn) {
-    if (_timestamp < startTime + 365 days) {
-      _unlockedSupplyReturn = 0;
-    } else {
-      _unlockedSupplyReturn =
-        TOTAL_SUPPLY / 13 + (TOTAL_SUPPLY * 12 / 13) * (_timestamp - startTime - 365 days) / 365 days;
-      _unlockedSupplyReturn -= withdrawedSupply[_token];
-    }
+  function _unlockedSupply(uint256 _timestamp) internal view returns (uint256 _unlockedSupplyReturn) {
+    uint256 _firstMilestoneTime = startTime + 365 days; // 1st milestone is 1 year after start time
+
+    if (_timestamp < _firstMilestoneTime) return _unlockedSupplyReturn; // return 0 if not reached
+
+    uint256 _firstMilestoneUnlockedAmount = totalAmount / 13; // 1st milestone unlock amount
+    uint256 _restAmount = totalAmount - _firstMilestoneUnlockedAmount; // rest amount after 1st milestone
+    uint256 _timePassed = _timestamp - startTime - 365 days; // time passed after 1st milestone
+    uint256 _totalTime = 365 days; // total unlock time after 1st milestone
+
+    // f(x) = ax + b
+    // b = totalAmount / 13
+    // a = restAmount / totalTime
+    // x = timePassed
+    _unlockedSupplyReturn = _firstMilestoneUnlockedAmount + (_restAmount * _timePassed) / _totalTime;
   }
 
-  function unlockedSupply(address _token) external view returns (uint256 _unlockedSupplyReturn) {
-    _unlockedSupplyReturn = _unlockedSupply(_token, block.timestamp);
+  function unlockedSupply() external view returns (uint256 _unlockedSupplyReturn) {
+    _unlockedSupplyReturn = _unlockedSupply(block.timestamp);
   }
 
-  function unlockedAtTimestamp(
-    address _token,
-    uint256 _timestamp
-  ) external view returns (uint256 _unlockedSupplyReturn) {
-    _unlockedSupplyReturn = _unlockedSupply(_token, _timestamp);
+  function unlockedAtTimestamp(uint256 _timestamp) external view returns (uint256 _unlockedSupplyReturn) {
+    _unlockedSupplyReturn = _unlockedSupply(_timestamp);
   }
 
-  function withdraw(address _receiver, address _token, uint256 _amount) external {
-    if (_amount > _unlockedSupply(_token, block.timestamp)) revert InsufficientUnlockedSupply();
-    if (msg.sender != owner) revert Unauthorized();
-    withdrawedSupply[_token] += _amount;
+  function withdraw(address _receiver, address _token) external {
+    if (msg.sender != owner()) revert Unauthorized();
+
+    uint256 _amount = _unlockedSupply(block.timestamp) - withdrawnSupply[_token];
+    uint256 _balance = IERC20(_token).balanceOf(address(this));
+
+    if (_amount > _balance) _amount = _balance;
+
+    withdrawnSupply[_token] += _amount;
     IERC20(_token).transfer(_receiver, _amount);
   }
 }

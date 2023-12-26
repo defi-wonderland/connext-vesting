@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity =0.8.19;
+pragma solidity =0.8.20;
 
 import {Test} from 'forge-std/Test.sol';
 
@@ -20,6 +20,6 @@ contract IntegrationBase is Test {
     _startTime = block.timestamp + 10 minutes;
 
     vm.prank(_alice);
-    _unlock = new Unlock(_startTime, _owner);
+    _unlock = new Unlock(_startTime, _owner, 24_960_000 ether);
   }
 }

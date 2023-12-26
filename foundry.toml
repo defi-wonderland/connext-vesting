@@ -8,11 +8,11 @@ number_underscore = 'thousands'
 multiline_func_header = 'params_first'
 
 [profile.default]
-solc_version = '0.8.19'
+solc_version = '0.8.20'
 src = 'solidity'
 test = 'solidity/test'
 out = 'out'
-libs = ['node_modules']
+libs = ["node_modules", "lib"]
 optimizer_runs = 10_000
 
 [profile.optimized]
