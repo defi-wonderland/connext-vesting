@@ -7,9 +7,9 @@ interface IUnlock {
 
   function unlockedSupply() external view returns (uint256 _unlockedSupply);
   function unlockedAtTimestamp(uint256 _timestamp) external view returns (uint256 _unlockedSupply);
-  function withdraw(address _receiver, address _token) external;
+  function withdraw(address _receiver) external;
 
   function startTime() external view returns (uint256 _startTime);
-  function withdrawnSupply(address _token) external view returns (uint256 _withdrawedSupply);
+  function withdrawnSupply() external view returns (uint256 _withdrawnSupply);
   function totalAmount() external view returns (uint256 _totalAmount);
 }

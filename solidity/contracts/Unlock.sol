@@ -9,11 +9,13 @@ contract Unlock is Ownable2Step, IUnlock {
   uint256 public totalAmount;
 
   uint256 public startTime;
-  mapping(address _token => uint256 _amount) public withdrawnSupply;
+  uint256 public withdrawnSupply;
+  address public vestingToken;
 
-  constructor(uint256 _startTime, address _owner, uint256 _totalAmount) Ownable(_owner) {
+  constructor(uint256 _startTime, address _owner, address _vestingToken, uint256 _totalAmount) Ownable(_owner) {
     startTime = _startTime;
     totalAmount = _totalAmount;
+    vestingToken = _vestingToken;
   }
 
   function _unlockedSupply(uint256 _timestamp) internal view returns (uint256 _unlockedSupplyReturn) {
@@ -41,15 +43,15 @@ contract Unlock is Ownable2Step, IUnlock {
     _unlockedSupplyReturn = _unlockedSupply(_timestamp);
   }
 
-  function withdraw(address _receiver, address _token) external {
+  function withdraw(address _receiver) external {
     if (msg.sender != owner()) revert Unauthorized();
 
-    uint256 _amount = _unlockedSupply(block.timestamp) - withdrawnSupply[_token];
-    uint256 _balance = IERC20(_token).balanceOf(address(this));
+    uint256 _amount = _unlockedSupply(block.timestamp) - withdrawnSupply;
+    uint256 _balance = IERC20(vestingToken).balanceOf(address(this));
 
     if (_amount > _balance) _amount = _balance;
 
-    withdrawnSupply[_token] += _amount;
-    IERC20(_token).transfer(_receiver, _amount);
+    withdrawnSupply += _amount;
+    IERC20(vestingToken).transfer(_receiver, _amount);
   }
 }

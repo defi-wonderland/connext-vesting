@@ -20,6 +20,6 @@ contract IntegrationBase is Test {
     _startTime = block.timestamp + 10 minutes;
 
     vm.prank(_alice);
-    _unlock = new Unlock(_startTime, _owner, 24_960_000 ether);
+    _unlock = new Unlock(_startTime, _owner, _nextToken, 24_960_000 ether);
   }
 }

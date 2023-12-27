@@ -43,15 +43,15 @@ contract IntegrationUnlock is IntegrationBase {
   function test_WithdrawNoSupply() public {
     vm.warp(_startTime + 364 days);
     vm.prank(_owner);
-    _unlock.withdraw(_alice, _nextToken);
-    assertEq(_unlock.withdrawnSupply(_nextToken), 0);
+    _unlock.withdraw(_alice);
+    assertEq(_unlock.withdrawnSupply(), 0);
     assertEq(IERC20(_nextToken).balanceOf(_alice), 0);
   }
 
   function test_WithdrawUnauthorized() public {
     vm.warp(_startTime + 365 days);
     vm.expectRevert(abi.encodeWithSelector(IUnlock.Unauthorized.selector));
-    _unlock.withdraw(_alice, _nextToken);
+    _unlock.withdraw(_alice);
   }
 
   function test_WithdrawLegit() public {
@@ -59,13 +59,13 @@ contract IntegrationUnlock is IntegrationBase {
     vm.warp(_startTime + 365 days);
     vm.startPrank(_owner);
 
-    _unlock.withdraw(_alice, _nextToken);
-    assertEq(_unlock.withdrawnSupply(_nextToken), 1_920_000 ether);
+    _unlock.withdraw(_alice);
+    assertEq(_unlock.withdrawnSupply(), 1_920_000 ether);
     assertEq(IERC20(_nextToken).balanceOf(_alice), 1_920_000 ether);
 
     // try again and expect no changes
-    _unlock.withdraw(_alice, _nextToken);
-    assertEq(_unlock.withdrawnSupply(_nextToken), 1_920_000 ether);
+    _unlock.withdraw(_alice);
+    assertEq(_unlock.withdrawnSupply(), 1_920_000 ether);
     assertEq(IERC20(_nextToken).balanceOf(_alice), 1_920_000 ether);
 
     vm.stopPrank();
