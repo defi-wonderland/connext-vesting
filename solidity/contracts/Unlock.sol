@@ -20,13 +20,13 @@ contract Unlock is Ownable2Step, IUnlock {
 
   function _unlockedSupply(uint256 _timestamp) internal view returns (uint256 _unlockedSupplyReturn) {
     uint256 _firstMilestoneTime = startTime + 365 days; // 1st milestone is 1 year after start time
+    uint256 _totalTime = 365 days; // total unlock time after 1st milestone
 
     if (_timestamp < _firstMilestoneTime) return _unlockedSupplyReturn; // return 0 if not reached
 
     uint256 _firstMilestoneUnlockedAmount = totalAmount / 13; // 1st milestone unlock amount
     uint256 _restAmount = totalAmount - _firstMilestoneUnlockedAmount; // rest amount after 1st milestone
-    uint256 _timePassed = _timestamp - startTime - 365 days; // time passed after 1st milestone
-    uint256 _totalTime = 365 days; // total unlock time after 1st milestone
+    uint256 _timePassed = _timestamp - _firstMilestoneTime; // time passed after 1st milestone
 
     // f(x) = ax + b
     // b = totalAmount / 13
