@@ -5,12 +5,11 @@ import {IntegrationBase} from 'test/integration/IntegrationBase.sol';
 import {IOwnable2Steps} from 'test/utils/IOwnable2Steps.sol';
 import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
 import {IUnlock} from 'interfaces/IUnlock.sol';
-import {IERC20} from 'isolmate/interfaces/tokens/IERC20.sol';
 
 contract IntegrationUnlock is IntegrationBase {
   function test_Constructor() public {
     assertEq(IOwnable2Steps(address(_unlock)).owner(), _owner);
-    assertEq(_unlock.startTime(), block.timestamp + 10 minutes);
+    assertEq(_unlock.START_TIME(), block.timestamp + 10 minutes);
   }
 
   function test_UnlockedAtTimestamp() public {
@@ -45,7 +44,7 @@ contract IntegrationUnlock is IntegrationBase {
     vm.prank(_owner);
     _unlock.withdraw(_alice);
     assertEq(_unlock.withdrawnSupply(), 0);
-    assertEq(IERC20(_nextToken).balanceOf(_alice), 0);
+    assertEq(_nextToken.balanceOf(_alice), 0);
   }
 
   function test_WithdrawUnauthorized() public {
@@ -55,18 +54,18 @@ contract IntegrationUnlock is IntegrationBase {
   }
 
   function test_WithdrawLegit() public {
-    deal(_nextToken, address(_unlock), 2_000_000 ether); // deal more than withrawable
+    deal(address(_nextToken), address(_unlock), 2_000_000 ether); // deal more than withrawable
     vm.warp(_startTime + 365 days);
     vm.startPrank(_owner);
 
     _unlock.withdraw(_alice);
     assertEq(_unlock.withdrawnSupply(), 1_920_000 ether);
-    assertEq(IERC20(_nextToken).balanceOf(_alice), 1_920_000 ether);
+    assertEq(_nextToken.balanceOf(_alice), 1_920_000 ether);
 
     // try again and expect no changes
     _unlock.withdraw(_alice);
     assertEq(_unlock.withdrawnSupply(), 1_920_000 ether);
-    assertEq(IERC20(_nextToken).balanceOf(_alice), 1_920_000 ether);
+    assertEq(_nextToken.balanceOf(_alice), 1_920_000 ether);
 
     vm.stopPrank();
   }
