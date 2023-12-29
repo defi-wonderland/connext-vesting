@@ -18,11 +18,11 @@ contract Unlock is Ownable2Step, IUnlock {
     vestingToken = _vestingToken;
   }
 
-  function _unlockedSupply(uint256 _timestamp) internal view returns (uint256 _unlockedSupplyReturn) {
+  function _unlockedSupply(uint256 _timestamp) internal view returns (uint256 _unlockedSupplyAmount) {
     uint256 _firstMilestoneTime = startTime + 365 days; // 1st milestone is 1 year after start time
     uint256 _totalTime = 365 days; // total unlock time after 1st milestone
 
-    if (_timestamp < _firstMilestoneTime) return _unlockedSupplyReturn; // return 0 if not reached
+    if (_timestamp < _firstMilestoneTime) return _unlockedSupplyAmount; // return 0 if not reached
 
     uint256 _firstMilestoneUnlockedAmount = totalAmount / 13; // 1st milestone unlock amount
     uint256 _restAmount = totalAmount - _firstMilestoneUnlockedAmount; // rest amount after 1st milestone
@@ -32,15 +32,15 @@ contract Unlock is Ownable2Step, IUnlock {
     // b = totalAmount / 13
     // a = restAmount / totalTime
     // x = timePassed
-    _unlockedSupplyReturn = _firstMilestoneUnlockedAmount + (_restAmount * _timePassed) / _totalTime;
+    _unlockedSupplyAmount = _firstMilestoneUnlockedAmount + (_restAmount * _timePassed) / _totalTime;
   }
 
-  function unlockedSupply() external view returns (uint256 _unlockedSupplyReturn) {
-    _unlockedSupplyReturn = _unlockedSupply(block.timestamp);
+  function unlockedSupply() external view returns (uint256 _unlockedSupplyAmount) {
+    _unlockedSupplyAmount = _unlockedSupply(block.timestamp);
   }
 
-  function unlockedAtTimestamp(uint256 _timestamp) external view returns (uint256 _unlockedSupplyReturn) {
-    _unlockedSupplyReturn = _unlockedSupply(_timestamp);
+  function unlockedAtTimestamp(uint256 _timestamp) external view returns (uint256 _unlockedSupplyAmount) {
+    _unlockedSupplyAmount = _unlockedSupply(_timestamp);
   }
 
   function withdraw(address _receiver) external {
