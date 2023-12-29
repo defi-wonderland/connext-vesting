@@ -10,12 +10,12 @@ contract Unlock is Ownable2Step, IUnlock {
 
   uint256 public immutable startTime;
   uint256 public withdrawnSupply;
-  address public immutable vestingToken;
+  IERC20 public immutable vestingToken;
 
   constructor(uint256 _startTime, address _owner, address _vestingToken, uint256 _totalAmount) Ownable(_owner) {
     startTime = _startTime;
     totalAmount = _totalAmount;
-    vestingToken = _vestingToken;
+    vestingToken = IERC20(_vestingToken);
   }
 
   function _unlockedSupply(uint256 _timestamp) internal view returns (uint256 _unlockedSupplyAmount) {
@@ -47,11 +47,11 @@ contract Unlock is Ownable2Step, IUnlock {
     if (msg.sender != owner()) revert Unauthorized();
 
     uint256 _amount = _unlockedSupply(block.timestamp) - withdrawnSupply;
-    uint256 _balance = IERC20(vestingToken).balanceOf(address(this));
+    uint256 _balance = vestingToken.balanceOf(address(this));
 
     if (_amount > _balance) _amount = _balance;
 
     withdrawnSupply += _amount;
-    IERC20(vestingToken).transfer(_receiver, _amount);
+    vestingToken.transfer(_receiver, _amount);
   }
 }
