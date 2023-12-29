@@ -6,11 +6,11 @@ import {IUnlock} from 'interfaces/IUnlock.sol';
 import {Ownable2Step, Ownable} from '@openzeppelin/contracts/access/Ownable2Step.sol';
 
 contract Unlock is Ownable2Step, IUnlock {
-  uint256 public totalAmount;
+  uint256 public immutable totalAmount;
 
-  uint256 public startTime;
+  uint256 public immutable startTime;
   uint256 public withdrawnSupply;
-  address public vestingToken;
+  address public immutable vestingToken;
 
   constructor(uint256 _startTime, address _owner, address _vestingToken, uint256 _totalAmount) Ownable(_owner) {
     startTime = _startTime;
