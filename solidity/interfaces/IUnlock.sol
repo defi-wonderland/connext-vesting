@@ -7,7 +7,7 @@ interface IUnlock {
   error InsufficientUnlockedSupply();
   error Unauthorized();
 
-  function unlockedSupply() external view returns (uint256 _unlockedSupply);
+  function withdrawableAmount() external view returns (uint256 _withdrawableAmount);
   function unlockedAtTimestamp(uint256 _timestamp) external view returns (uint256 _unlockedSupply);
   function withdraw(address _receiver) external;
 

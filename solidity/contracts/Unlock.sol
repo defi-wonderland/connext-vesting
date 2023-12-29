@@ -36,8 +36,8 @@ contract Unlock is Ownable2Step, IUnlock {
     if (_unlockedSupplyAmount > TOTAL_AMOUNT) _unlockedSupplyAmount = TOTAL_AMOUNT;
   }
 
-  function unlockedSupply() external view returns (uint256 _unlockedSupplyAmount) {
-    _unlockedSupplyAmount = _unlockedSupply(block.timestamp);
+  function withdrawableAmount() public view returns (uint256 _withdrawableAmount) {
+    _withdrawableAmount = _unlockedSupply(block.timestamp) - withdrawnSupply;
   }
 
   function unlockedAtTimestamp(uint256 _timestamp) external view returns (uint256 _unlockedSupplyAmount) {
@@ -47,7 +47,7 @@ contract Unlock is Ownable2Step, IUnlock {
   function withdraw(address _receiver) external {
     if (msg.sender != owner()) revert Unauthorized();
 
-    uint256 _amount = _unlockedSupply(block.timestamp) - withdrawnSupply;
+    uint256 _amount = withdrawableAmount();
     uint256 _balance = VESTING_TOKEN.balanceOf(address(this));
 
     if (_amount > _balance) _amount = _balance;

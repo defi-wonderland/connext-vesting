@@ -6,6 +6,8 @@ import {IOwnable2Steps} from 'test/utils/IOwnable2Steps.sol';
 import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
 import {IUnlock} from 'interfaces/IUnlock.sol';
 
+import {console} from 'forge-std/console.sol';
+
 contract IntegrationUnlock is IntegrationBase {
   function test_Constructor() public {
     assertEq(IOwnable2Steps(address(_unlock)).owner(), _owner);
@@ -21,25 +23,30 @@ contract IntegrationUnlock is IntegrationBase {
     assertEq(_unlock.unlockedAtTimestamp(_startTime + 365 days + 100 days) - 8_232_328 ether < 1 ether, true);
 
     assertEq(_unlock.unlockedAtTimestamp(_startTime + 365 days + 365 days), 24_960_000 ether);
+    assertEq(_unlock.unlockedAtTimestamp(_startTime + 365 days + 365 days + 10 days), 24_960_000 ether);
   }
 
-  function test_UnlockedAmount() public {
-    assertEq(_unlock.unlockedSupply(), 0);
+  function test_WithdrawableAmount() public {
+    deal(address(_nextToken), address(_unlock), 25_000_000 ether);
+
+    assertEq(_unlock.withdrawableAmount(), 0);
     vm.warp(_startTime + 364 days);
-    assertEq(_unlock.unlockedSupply(), 0);
+    assertEq(_unlock.withdrawableAmount(), 0);
     vm.warp(_startTime + 365 days);
-    assertEq(_unlock.unlockedSupply(), 1_920_000 ether);
-
+    assertEq(_unlock.withdrawableAmount(), 1_920_000 ether);
     vm.warp(_startTime + 365 days + 10 days);
-    assertEq(_unlock.unlockedSupply() - 2_551_232 ether < 1 ether, true);
+    assertEq(_unlock.withdrawableAmount() - 2_551_232 ether < 1 ether, true);
+
+    vm.prank(_owner);
+    _unlock.withdraw(_alice);
+    assertEq(_unlock.withdrawableAmount(), 0 ether);
+
     vm.warp(_startTime + 365 days + 100 days);
-    assertEq(_unlock.unlockedSupply() - 8_232_328 ether < 1 ether, true);
-
+    assertEq(8_232_328 ether - _unlock.withdrawableAmount() - 2_551_232 ether < 1 ether, true);
     vm.warp(_startTime + 365 days + 365 days);
-    assertEq(_unlock.unlockedSupply(), 24_960_000 ether);
-
+    assertEq(24_960_000 ether - _unlock.withdrawableAmount() - 2_551_232 ether < 1 ether, true);
     vm.warp(_startTime + 365 days + 365 days + 10 days);
-    assertEq(_unlock.unlockedSupply(), 24_960_000 ether);
+    assertEq(24_960_000 ether - _unlock.withdrawableAmount() - 2_551_232 ether < 1 ether, true);
   }
 
   function test_WithdrawNoSupply() public {
@@ -53,6 +60,7 @@ contract IntegrationUnlock is IntegrationBase {
   function test_WithdrawUnauthorized() public {
     vm.warp(_startTime + 365 days);
     vm.expectRevert(abi.encodeWithSelector(IUnlock.Unauthorized.selector));
+    vm.prank(_alice);
     _unlock.withdraw(_alice);
   }
 
