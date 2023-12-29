@@ -12,10 +12,10 @@ contract Unlock is Ownable2Step, IUnlock {
 
   uint256 public withdrawnSupply;
 
-  constructor(uint256 _startTime, address _owner, address _vestingToken, uint256 _totalAmount) Ownable(_owner) {
+  constructor(uint256 _startTime, address _owner, IERC20 _vestingToken, uint256 _totalAmount) Ownable(_owner) {
     START_TIME = _startTime;
     TOTAL_AMOUNT = _totalAmount;
-    VESTING_TOKEN = IERC20(_vestingToken);
+    VESTING_TOKEN = _vestingToken;
   }
 
   function _unlockedSupply(uint256 _timestamp) internal view returns (uint256 _unlockedSupplyAmount) {

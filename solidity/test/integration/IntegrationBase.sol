@@ -27,7 +27,7 @@ contract IntegrationBase is Test {
     _startTime = block.timestamp + 10 minutes;
 
     vm.prank(_alice);
-    _unlock = new Unlock(_startTime, _owner, address(_nextToken), _TOTAL_AMOUNT);
+    _unlock = new Unlock(_startTime, _owner, _nextToken, _TOTAL_AMOUNT);
     _llamaPay = ILlamaPay(_llamaPayFactory.createLlamaPayContract(address(_nextToken)));
   }
 }
