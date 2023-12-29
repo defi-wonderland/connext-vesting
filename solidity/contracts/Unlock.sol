@@ -33,6 +33,7 @@ contract Unlock is Ownable2Step, IUnlock {
     // a = restAmount / totalTime
     // x = timePassed
     _unlockedSupplyAmount = _firstMilestoneUnlockedAmount + (_restAmount * _timePassed) / _totalTime;
+    if (_unlockedSupplyAmount > TOTAL_AMOUNT) _unlockedSupplyAmount = TOTAL_AMOUNT;
   }
 
   function unlockedSupply() external view returns (uint256 _unlockedSupplyAmount) {

@@ -37,6 +37,9 @@ contract IntegrationUnlock is IntegrationBase {
 
     vm.warp(_startTime + 365 days + 365 days);
     assertEq(_unlock.unlockedSupply(), 24_960_000 ether);
+
+    vm.warp(_startTime + 365 days + 365 days + 10 days);
+    assertEq(_unlock.unlockedSupply(), 24_960_000 ether);
   }
 
   function test_WithdrawNoSupply() public {
