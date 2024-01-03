@@ -63,7 +63,7 @@ contract IntegrationUnlock is IntegrationBase {
   }
 
   function test_WithdrawLegit() public {
-    deal(address(_nextToken), address(_unlock), 2_000_000 ether); // deal more than withrawable
+    deal(address(_nextToken), address(_unlock), 2_000_000 ether); // deal more than withdrawable
     vm.warp(_unlockStartTime + 365 days);
     vm.startPrank(_owner);
 

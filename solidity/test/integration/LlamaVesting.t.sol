@@ -58,7 +58,7 @@ contract IntegrationLlamaVesting is IntegrationBase {
     _llamaPay.depositAndCreate(_amount, address(_unlock), _PAY_PER_SEC);
     vm.stopPrank();
 
-    // somebody midifies the stream
+    // somebody modifies the stream
     vm.prank(_owner);
     // solhint-disable-next-line quotes
     vm.expectRevert("stream doesn't exist");
@@ -66,7 +66,7 @@ contract IntegrationLlamaVesting is IntegrationBase {
     (, uint216 _totalPaidPerSec) = _llamaPay.payers(_alice);
     assertEq(_totalPaidPerSec, _PAY_PER_SEC); // nothing changed for alice
 
-    // alice midifies the stream
+    // alice modifies the stream
     vm.prank(_alice);
     _llamaPay.modifyStream(address(_unlock), _PAY_PER_SEC, address(_unlock), _PAY_PER_SEC * 2);
     (, _totalPaidPerSec) = _llamaPay.payers(_alice);
