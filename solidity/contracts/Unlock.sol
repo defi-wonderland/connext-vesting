@@ -7,6 +7,9 @@ import {IERC20} from 'isolmate/interfaces/tokens/IERC20.sol';
 
 contract Unlock is Ownable2Step, IUnlock {
   /// @inheritdoc IUnlock
+  uint256 public constant DAYS_UNTIL_FIRST_MILESTONE = 365 days;
+
+  /// @inheritdoc IUnlock
   IERC20 public immutable VESTING_TOKEN;
 
   /// @inheritdoc IUnlock
@@ -19,9 +22,6 @@ contract Unlock is Ownable2Step, IUnlock {
   uint256 public immutable UNLOCKED_AT_FIRST_MILESTONE;
   /// @inheritdoc IUnlock
   uint256 public immutable UNLOCKED_AFTER_FIRST_MILESTONE;
-
-  /// @inheritdoc IUnlock
-  uint256 public constant DAYS_UNTIL_FIRST_MILESTONE = 365 days;
 
   /// @inheritdoc IUnlock
   uint256 public withdrawnAmount;

@@ -4,7 +4,7 @@ pragma solidity =0.8.20;
 import {IntegrationBase} from 'test/integration/IntegrationBase.sol';
 
 contract IntegrationLlamaVesting is IntegrationBase {
-  uint256 _vestingStartTime;
+  uint256 internal _vestingStartTime;
 
   function setUp() public override {
     super.setUp();
