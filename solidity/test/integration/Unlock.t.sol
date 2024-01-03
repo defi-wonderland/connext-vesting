@@ -51,13 +51,13 @@ contract IntegrationUnlock is IntegrationBase {
     vm.warp(_unlockStartTime + 364 days);
     vm.prank(_owner);
     _unlock.withdraw(_alice);
-    assertEq(_unlock.withdrawnSupply(), 0);
+    assertEq(_unlock.withdrawnAmount(), 0);
     assertEq(_nextToken.balanceOf(_alice), 0);
   }
 
   function test_WithdrawUnauthorized() public {
     vm.warp(_unlockStartTime + 365 days);
-    vm.expectRevert(abi.encodeWithSelector(IUnlock.Unauthorized.selector));
+    vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, _alice));
     vm.prank(_alice);
     _unlock.withdraw(_alice);
   }
@@ -68,12 +68,12 @@ contract IntegrationUnlock is IntegrationBase {
     vm.startPrank(_owner);
 
     _unlock.withdraw(_alice);
-    assertEq(_unlock.withdrawnSupply(), 1_920_000 ether);
+    assertEq(_unlock.withdrawnAmount(), 1_920_000 ether);
     assertEq(_nextToken.balanceOf(_alice), 1_920_000 ether);
 
     // try again and expect no changes
     _unlock.withdraw(_alice);
-    assertEq(_unlock.withdrawnSupply(), 1_920_000 ether);
+    assertEq(_unlock.withdrawnAmount(), 1_920_000 ether);
     assertEq(_nextToken.balanceOf(_alice), 1_920_000 ether);
 
     vm.stopPrank();

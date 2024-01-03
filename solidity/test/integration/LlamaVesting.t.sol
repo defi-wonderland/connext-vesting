@@ -118,17 +118,16 @@ contract IntegrationLlamaVesting is IntegrationBase {
     _llamaPay.withdraw(_owner, address(_unlock), _PAY_PER_SEC);
     assertEq(_nextToken.balanceOf(address(_unlock)), _vestedAmount); // unlock got its tokens
     _unlock.withdraw(_owner);
-    assertEq(_unlock.withdrawnSupply(), _unlockedAmount); // not unlocked yet
+    assertEq(_unlock.withdrawnAmount(), _unlockedAmount); // not unlocked yet
     assertEq(_nextToken.balanceOf(_owner), _unlockedAmount);
 
     // after 1st milestone
     _timePassed = _unlockStartTime + 365 days + 10 days;
-    _vestedAmount = (_timePassed - _vestingStartTime) * _PAY_PER_SEC / 1e2;
     _unlockedAmount = 2_551_232 ether; // approximated
     vm.warp(_timePassed);
     _llamaPay.withdraw(_owner, address(_unlock), _PAY_PER_SEC);
     _unlock.withdraw(_owner);
-    assertEq(_unlock.withdrawnSupply() - _unlockedAmount < 1 ether, true); // unlocked less than vested (with rounding)
+    assertEq(_unlock.withdrawnAmount() - _unlockedAmount < 1 ether, true); // unlocked less than vested (with rounding)
     assertEq(_nextToken.balanceOf(_owner) - _unlockedAmount < 1 ether, true);
 
     // linear unlock after 1st milestone
@@ -138,18 +137,17 @@ contract IntegrationLlamaVesting is IntegrationBase {
     vm.warp(_timePassed);
     _llamaPay.withdraw(_owner, address(_unlock), _PAY_PER_SEC);
     _unlock.withdraw(_owner);
-    assertEq(_unlock.withdrawnSupply() - _vestedAmount < 0.00001 ether, true); // vested less than unlocked (with rounding)
+    assertEq(_unlock.withdrawnAmount() - _vestedAmount < 0.00001 ether, true); // vested less than unlocked (with rounding)
     assertEq(_nextToken.balanceOf(_owner) - _vestedAmount < 0.00001 ether, true);
 
     // end of the vesting
     _timePassed = _unlockStartTime + 365 days * 4 + 10 days; // end of unlock
-    _vestedAmount = (_timePassed - _vestingStartTime) * _PAY_PER_SEC / 1e2;
     _unlockedAmount = 24_960_000 ether;
     vm.warp(_timePassed);
     _llamaPay.withdraw(_owner, address(_unlock), _PAY_PER_SEC);
     _unlock.withdraw(_owner);
 
-    assertEq(_unlockedAmount - _unlock.withdrawnSupply() < 0.01 ether, true); // unlocked all (with rounding)
+    assertEq(_unlockedAmount - _unlock.withdrawnAmount() < 0.01 ether, true); // unlocked all (with rounding)
     assertEq(_unlockedAmount - _nextToken.balanceOf(_owner) < 0.01 ether, true);
 
     vm.stopPrank();
