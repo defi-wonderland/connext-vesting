@@ -1,97 +1,117 @@
 // SPDX-License-Identifier: MIT
 pragma solidity =0.8.20;
 
-import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
-import {IUnlock} from 'interfaces/IUnlock.sol';
+import {Ownable, Ownable2Step} from '@openzeppelin/contracts/access/Ownable2Step.sol';
 import {IntegrationBase} from 'test/integration/IntegrationBase.sol';
-import {IOwnable2Steps} from 'test/utils/IOwnable2Steps.sol';
 
 contract IntegrationUnlock is IntegrationBase {
+  address public receiver = makeAddr('receiver');
+
+  address internal _unlockAddress;
+  uint256 internal _firstMilestoneTimestamp;
+
+  function setUp() public override {
+    super.setUp();
+
+    _unlockAddress = address(_unlock);
+    _firstMilestoneTimestamp = _unlock.FIRST_MILESTONE_TIMESTAMP();
+  }
+
   function test_Constructor() public {
-    assertEq(IOwnable2Steps(address(_unlock)).owner(), _owner);
+    assertEq(Ownable2Step(_unlockAddress).owner(), owner);
     assertEq(_unlock.START_TIME(), block.timestamp + 10 minutes);
   }
 
   function test_UnlockedAtTimestamp() public {
     assertEq(_unlock.unlockedAtTimestamp(_unlockStartTime), 0);
-    assertEq(_unlock.unlockedAtTimestamp(_unlockStartTime + 364 days), 0 ether);
-    assertEq(_unlock.unlockedAtTimestamp(_unlockStartTime + 365 days), 1_920_000 ether);
+    assertEq(_unlock.unlockedAtTimestamp(_firstMilestoneTimestamp - 1), 0);
 
-    assertEq(_unlock.unlockedAtTimestamp(_unlockStartTime + 365 days + 10 days) - 2_551_232 ether < 1 ether, true);
-    assertEq(_unlock.unlockedAtTimestamp(_unlockStartTime + 365 days + 100 days) - 8_232_328 ether < 1 ether, true);
+    assertEq(_unlock.unlockedAtTimestamp(_firstMilestoneTimestamp), 1_920_000 ether);
 
-    assertEq(_unlock.unlockedAtTimestamp(_unlockStartTime + 365 days + 365 days), 24_960_000 ether);
-    assertEq(_unlock.unlockedAtTimestamp(_unlockStartTime + 365 days + 365 days + 10 days), 24_960_000 ether);
+    assertApproxEqAbs(_unlock.unlockedAtTimestamp(_firstMilestoneTimestamp + 10 days), 2_551_232 ether, MAX_DELTA);
+    assertApproxEqAbs(_unlock.unlockedAtTimestamp(_firstMilestoneTimestamp + 100 days), 8_232_328 ether, MAX_DELTA);
+
+    assertEq(_unlock.unlockedAtTimestamp(_firstMilestoneTimestamp + 365 days), 24_960_000 ether);
+    assertEq(_unlock.unlockedAtTimestamp(_firstMilestoneTimestamp + 365 days + 10 days), 24_960_000 ether);
   }
 
   function test_WithdrawableAmount() public {
-    deal(address(_nextToken), address(_unlock), 25_000_000 ether);
+    deal(NEXT_TOKEN_ADDRESS, _unlockAddress, 25_000_000 ether);
 
     assertEq(_unlock.withdrawableAmount(), 0);
+
     vm.warp(_unlockStartTime + 364 days);
     assertEq(_unlock.withdrawableAmount(), 0);
-    vm.warp(_unlockStartTime + 365 days);
-    assertEq(_unlock.withdrawableAmount(), 1_920_000 ether);
-    vm.warp(_unlockStartTime + 365 days + 10 days);
-    assertEq(_unlock.withdrawableAmount() - 2_551_232 ether < 1 ether, true);
 
-    vm.prank(_owner);
-    _unlock.withdraw(_alice);
+    vm.warp(_firstMilestoneTimestamp);
+    assertEq(_unlock.withdrawableAmount(), 1_920_000 ether);
+
+    vm.warp(_firstMilestoneTimestamp + 10 days);
+    assertApproxEqAbs(_unlock.withdrawableAmount(), 2_551_232 ether, MAX_DELTA);
+
+    vm.prank(owner);
+    _unlock.withdraw(receiver);
     assertEq(_unlock.withdrawableAmount(), 0 ether);
 
-    vm.warp(_unlockStartTime + 365 days + 100 days);
-    assertEq(8_232_328 ether - _unlock.withdrawableAmount() - 2_551_232 ether < 1 ether, true);
-    vm.warp(_unlockStartTime + 365 days + 365 days);
-    assertEq(24_960_000 ether - _unlock.withdrawableAmount() - 2_551_232 ether < 1 ether, true);
-    vm.warp(_unlockStartTime + 365 days + 365 days + 10 days);
-    assertEq(24_960_000 ether - _unlock.withdrawableAmount() - 2_551_232 ether < 1 ether, true);
+    vm.warp(_firstMilestoneTimestamp + 100 days);
+    assertApproxEqAbs(8_232_328 ether - _unlock.withdrawableAmount(), 2_551_232 ether, MAX_DELTA);
+
+    vm.warp(_firstMilestoneTimestamp + 365 days);
+    assertApproxEqAbs(24_960_000 ether - _unlock.withdrawableAmount(), 2_551_232 ether, MAX_DELTA);
+
+    vm.warp(_firstMilestoneTimestamp + 365 days + 10 days);
+    assertApproxEqAbs(24_960_000 ether - _unlock.withdrawableAmount(), 2_551_232 ether, MAX_DELTA);
   }
 
-  function test_WithdrawNoSupply() public {
-    vm.warp(_unlockStartTime + 364 days);
-    vm.prank(_owner);
-    _unlock.withdraw(_alice);
-    assertEq(_unlock.withdrawnAmount(), 0);
-    assertEq(_nextToken.balanceOf(_alice), 0);
-  }
+  function test_Withdraw() public {
+    // deal more than withdrawable
+    deal(NEXT_TOKEN_ADDRESS, _unlockAddress, 2_000_000 ether);
+    vm.warp(_firstMilestoneTimestamp);
 
-  function test_WithdrawUnauthorized() public {
-    vm.warp(_unlockStartTime + 365 days);
-    vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, _alice));
-    vm.prank(_alice);
-    _unlock.withdraw(_alice);
-  }
-
-  function test_WithdrawLegit() public {
-    deal(address(_nextToken), address(_unlock), 2_000_000 ether); // deal more than withdrawable
-    vm.warp(_unlockStartTime + 365 days);
-    vm.startPrank(_owner);
-
-    _unlock.withdraw(_alice);
+    vm.startPrank(owner);
+    _unlock.withdraw(receiver);
     assertEq(_unlock.withdrawnAmount(), 1_920_000 ether);
-    assertEq(_nextToken.balanceOf(_alice), 1_920_000 ether);
+    assertEq(_nextToken.balanceOf(receiver), 1_920_000 ether);
 
     // try again and expect no changes
-    _unlock.withdraw(_alice);
+    _unlock.withdraw(receiver);
     assertEq(_unlock.withdrawnAmount(), 1_920_000 ether);
-    assertEq(_nextToken.balanceOf(_alice), 1_920_000 ether);
+    assertEq(_nextToken.balanceOf(receiver), 1_920_000 ether);
 
     vm.stopPrank();
   }
 
-  function test_transferOwnership() public {
-    vm.prank(_owner);
-    IOwnable2Steps(address(_unlock)).transferOwnership(_alice);
-    assertEq(IOwnable2Steps(address(_unlock)).pendingOwner(), _alice);
-    assertEq(IOwnable2Steps(address(_unlock)).owner(), _owner);
+  function test_Withdraw_NoSupply() public {
+    vm.prank(owner);
+    _unlock.withdraw(receiver);
+
+    assertEq(_unlock.withdrawnAmount(), 0);
+    assertEq(_nextToken.balanceOf(receiver), 0);
+  }
+
+  function test_Withdraw_Unauthorized(address _randomAddress) public {
+    vm.assume(_randomAddress != owner);
+    vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, _randomAddress));
+    vm.prank(_randomAddress);
+    _unlock.withdraw(receiver);
+  }
+
+  function test_transferOwnership(address _newOwner) public {
+    Ownable2Step _unlockOwnable = Ownable2Step(_unlockAddress);
+
+    vm.prank(owner);
+    _unlockOwnable.transferOwnership(_newOwner);
+
+    assertEq(_unlockOwnable.pendingOwner(), _newOwner);
+    assertEq(_unlockOwnable.owner(), owner);
 
     address _bob = makeAddr('bob');
     vm.prank(_bob);
     vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, _bob));
-    IOwnable2Steps(address(_unlock)).acceptOwnership();
+    _unlockOwnable.acceptOwnership();
 
-    vm.prank(_alice);
-    IOwnable2Steps(address(_unlock)).acceptOwnership();
-    assertEq(IOwnable2Steps(address(_unlock)).owner(), _alice);
+    vm.prank(_newOwner);
+    _unlockOwnable.acceptOwnership();
+    assertEq(_unlockOwnable.owner(), _newOwner);
   }
 }
