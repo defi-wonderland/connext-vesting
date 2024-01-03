@@ -3,10 +3,11 @@ pragma solidity =0.8.20;
 
 import {Test} from 'forge-std/Test.sol';
 
-import {Unlock, IUnlock} from 'contracts/Unlock.sol';
-import {ILlamaPayFactory} from 'test/utils/ILlamaPayFactory.sol';
-import {ILlamaPay} from 'test/utils/ILlamaPay.sol';
+import {IUnlock, Unlock} from 'contracts/Unlock.sol';
+
 import {IERC20} from 'isolmate/interfaces/tokens/IERC20.sol';
+import {ILlamaPay} from 'test/utils/ILlamaPay.sol';
+import {ILlamaPayFactory} from 'test/utils/ILlamaPayFactory.sol';
 
 contract IntegrationBase is Test {
   uint256 internal constant _FORK_BLOCK = 18_842_671;

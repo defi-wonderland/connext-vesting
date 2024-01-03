@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {IERC20} from 'isolmate/interfaces/tokens/IERC20.sol';
+import {Ownable, Ownable2Step} from '@openzeppelin/contracts/access/Ownable2Step.sol';
 import {IUnlock} from 'interfaces/IUnlock.sol';
-import {Ownable2Step, Ownable} from '@openzeppelin/contracts/access/Ownable2Step.sol';
+import {IERC20} from 'isolmate/interfaces/tokens/IERC20.sol';
 
 contract Unlock is Ownable2Step, IUnlock {
   uint256 public immutable TOTAL_AMOUNT;

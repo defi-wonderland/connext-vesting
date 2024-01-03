@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity =0.8.20;
 
-import {IntegrationBase} from 'test/integration/IntegrationBase.sol';
-import {IOwnable2Steps} from 'test/utils/IOwnable2Steps.sol';
 import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
 import {IUnlock} from 'interfaces/IUnlock.sol';
+import {IntegrationBase} from 'test/integration/IntegrationBase.sol';
+import {IOwnable2Steps} from 'test/utils/IOwnable2Steps.sol';
 
 contract IntegrationUnlock is IntegrationBase {
   function test_Constructor() public {
