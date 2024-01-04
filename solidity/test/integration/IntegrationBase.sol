@@ -12,6 +12,7 @@ import {ILlamaPayFactory} from 'test/utils/ILlamaPayFactory.sol';
 
 contract IntegrationBase is Test, Constants {
   address public owner = makeAddr('owner');
+  address public payer = makeAddr('payer');
 
   IERC20 internal _nextToken = IERC20(NEXT_TOKEN_ADDRESS);
   ILlamaPayFactory internal _llamaPayFactory = ILlamaPayFactory(LLAMA_FACTORY_ADDRESS);
@@ -27,5 +28,9 @@ contract IntegrationBase is Test, Constants {
 
     _unlock = new Unlock(_unlockStartTime, owner, _nextToken, TOTAL_AMOUNT);
     _llamaPay = ILlamaPay(_llamaPayFactory.createLlamaPayContract(NEXT_TOKEN_ADDRESS));
+
+    deal(NEXT_TOKEN_ADDRESS, payer, TOTAL_AMOUNT);
+    vm.prank(payer);
+    _nextToken.approve(address(_llamaPay), TOTAL_AMOUNT);
   }
 }

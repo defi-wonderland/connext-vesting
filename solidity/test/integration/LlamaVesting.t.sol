@@ -8,15 +8,11 @@ contract IntegrationLlamaVesting is IntegrationBase {
 
   function setUp() public override {
     super.setUp();
-    deal(NEXT_TOKEN_ADDRESS, owner, TOTAL_AMOUNT);
     _vestingStartTime = block.timestamp;
-
-    vm.prank(owner);
-    _nextToken.approve(address(_llamaPay), TOTAL_AMOUNT);
   }
 
   function test_VestAndUnlock() public {
-    vm.startPrank(owner);
+    vm.prank(payer);
     _llamaPay.depositAndCreate(TOTAL_AMOUNT, address(_unlock), PAY_PER_SECOND);
 
     // Before the 1st milestone
@@ -39,8 +35,6 @@ contract IntegrationLlamaVesting is IntegrationBase {
     // After the unlocking period has ended
     _warpAndWithdraw(_unlock.FIRST_MILESTONE_TIMESTAMP() + 365 days * 3 + 10 days);
     _assertBalances(24_960_000 ether);
-
-    vm.stopPrank();
   }
 
   /**
@@ -48,7 +42,9 @@ contract IntegrationLlamaVesting is IntegrationBase {
    */
   function _warpAndWithdraw(uint256 _timestamp) internal {
     vm.warp(_timestamp);
-    _llamaPay.withdraw(owner, address(_unlock), PAY_PER_SECOND);
+    _llamaPay.withdraw(payer, address(_unlock), PAY_PER_SECOND);
+
+    vm.prank(owner);
     _unlock.withdraw(owner);
   }
 
