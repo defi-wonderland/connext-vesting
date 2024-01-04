@@ -20,6 +20,10 @@ yarn deploy
 yarn deploy:sepolia
 ```
 
+## Licensing
+
+The primary license for Prophet contracts is MIT, see [`LICENSE`](./LICENSE).
+
 ## Contributors
 
 Built with ❤️ by [Wonderland](https://defi.sucks), a team of top Web3 researchers, developers, and operators who believe that the future needs to be open-source, permissionless, and decentralized.
