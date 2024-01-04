@@ -5,6 +5,14 @@ import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 
 interface IUnlock {
   /*///////////////////////////////////////////////////////////////
+                              ERRORS
+  //////////////////////////////////////////////////////////////*/
+  /**
+   * @notice Thrown when somebody is trying to send dust to the zero address
+   */
+  error ZeroAddress();
+
+  /*///////////////////////////////////////////////////////////////
                               VARIABLES
   //////////////////////////////////////////////////////////////*/
 
@@ -88,4 +96,13 @@ interface IUnlock {
    * @param _receiver The address of the receiver
    */
   function withdraw(address _receiver) external;
+
+  /**
+   * @notice Sends dust to the owner, including ETH and non-vesting ERC20s
+   *
+   * @param _token The token to collect
+   * @param _amount The amount to collect
+   * @param _to The address to send the dust to
+   */
+  function sendDust(IERC20 _token, uint256 _amount, address _to) external;
 }

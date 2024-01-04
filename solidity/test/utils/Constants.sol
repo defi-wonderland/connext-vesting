@@ -14,6 +14,7 @@ contract Constants {
   // The amount of tokens to be streamed per second, TOTAL_AMOUNT / 4 years, with 20 decimals
   uint216 public constant PAY_PER_SECOND = 0.19786910197869101978 * 1e20;
 
+  address public constant DAI_ADDRESS = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
   address public constant NEXT_TOKEN_ADDRESS = 0xFE67A4450907459c3e1FFf623aA927dD4e28c67a;
   address public constant LLAMA_FACTORY_ADDRESS = 0xde1C04855c2828431ba637675B6929A684f84C7F;
 }

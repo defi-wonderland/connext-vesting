@@ -3,10 +3,13 @@ pragma solidity 0.8.20;
 
 import {Ownable, Ownable2Step} from '@openzeppelin/contracts/access/Ownable2Step.sol';
 import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
+import {SafeERC20} from '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 
 import {IUnlock} from 'interfaces/IUnlock.sol';
 
 contract Unlock is Ownable2Step, IUnlock {
+  using SafeERC20 for IERC20;
+
   /// @inheritdoc IUnlock
   uint256 public constant SECONDS_UNTIL_FIRST_MILESTONE = 365 days;
 
@@ -54,7 +57,20 @@ contract Unlock is Ownable2Step, IUnlock {
     if (_amount > _balance) _amount = _balance;
 
     withdrawnAmount += _amount;
-    VESTING_TOKEN.transfer(_receiver, _amount);
+    VESTING_TOKEN.safeTransfer(_receiver, _amount);
+  }
+
+  /// @inheritdoc IUnlock
+  function sendDust(IERC20 _token, uint256 _amount, address _to) external onlyOwner {
+    if (_to == address(0)) revert ZeroAddress();
+
+    if (_token == IERC20(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE)) {
+      // Sending ETH
+      payable(_to).transfer(_amount);
+    } else if (_token != VESTING_TOKEN) {
+      // Sending ERC20s
+      _token.safeTransfer(_to, _amount);
+    }
   }
 
   /**

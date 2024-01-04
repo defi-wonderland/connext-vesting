@@ -2,6 +2,7 @@
 pragma solidity 0.8.20;
 
 import {Ownable, Ownable2Step} from '@openzeppelin/contracts/access/Ownable2Step.sol';
+import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import {IntegrationBase} from 'test/integration/IntegrationBase.sol';
 
 contract IntegrationUnlock is IntegrationBase {
@@ -146,5 +147,42 @@ contract IntegrationUnlock is IntegrationBase {
     vm.prank(_newOwner);
     _unlockOwnable.acceptOwnership();
     assertEq(_unlockOwnable.owner(), _newOwner);
+  }
+
+  /**
+   * @notice The dust collector should allow the owner to send ETH and ERC20s to any address
+   */
+  function test_SendDust() public {
+    IERC20 _dai = IERC20(DAI_ADDRESS);
+    address _randomAddress = makeAddr('randomAddress');
+    uint256 _dustAmount = 1000;
+
+    vm.deal(_unlockAddress, _dustAmount);
+    deal(DAI_ADDRESS, _unlockAddress, _dustAmount);
+    deal(NEXT_TOKEN_ADDRESS, _unlockAddress, _dustAmount);
+
+    // Random dude cannot collect dust
+    address _bob = makeAddr('bob');
+    vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, _bob));
+    vm.prank(_bob);
+    _unlock.sendDust(_dai, _dustAmount, _randomAddress);
+
+    // Can't collect the vesting token
+    assertEq(_nextToken.balanceOf(_randomAddress), 0);
+    vm.prank(owner);
+    _unlock.sendDust(_nextToken, _dustAmount, _randomAddress);
+    assertEq(_nextToken.balanceOf(_randomAddress), 0);
+
+    // Collect an ERC20 token
+    assertEq(_dai.balanceOf(_randomAddress), 0);
+    vm.prank(owner);
+    _unlock.sendDust(_dai, _dustAmount, _randomAddress);
+    assertEq(_dai.balanceOf(_randomAddress), _dustAmount);
+
+    // Collect ETH
+    assertEq(_randomAddress.balance, 0);
+    vm.prank(owner);
+    _unlock.sendDust(IERC20(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE), _dustAmount, _randomAddress);
+    assertEq(_randomAddress.balance, _dustAmount);
   }
 }
