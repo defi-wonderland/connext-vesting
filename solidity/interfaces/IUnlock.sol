@@ -51,11 +51,11 @@ interface IUnlock {
   function UNLOCKED_AFTER_FIRST_MILESTONE() external view returns (uint256 _unlockedAfterFirstMilestone);
 
   /**
-   * @notice Returns the number of days that should pass before the first milestone is reached
+   * @notice Returns the number of seconds that should pass before the first milestone is reached
    *
-   * @return _daysUntilFirstMilestone The number of days before the first milestone
+   * @return _secondsUntilFirstMilestone The number of seconds before the first milestone
    */
-  function DAYS_UNTIL_FIRST_MILESTONE() external view returns (uint256 _daysUntilFirstMilestone);
+  function SECONDS_UNTIL_FIRST_MILESTONE() external view returns (uint256 _secondsUntilFirstMilestone);
 
   /**
    * @notice Returns the amount of tokens that have been withdrawn

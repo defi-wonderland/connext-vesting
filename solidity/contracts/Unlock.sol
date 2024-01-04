@@ -7,7 +7,7 @@ import {IERC20} from 'isolmate/interfaces/tokens/IERC20.sol';
 
 contract Unlock is Ownable2Step, IUnlock {
   /// @inheritdoc IUnlock
-  uint256 public constant DAYS_UNTIL_FIRST_MILESTONE = 365 days;
+  uint256 public constant SECONDS_UNTIL_FIRST_MILESTONE = 365 days;
 
   /// @inheritdoc IUnlock
   IERC20 public immutable VESTING_TOKEN;
@@ -30,7 +30,7 @@ contract Unlock is Ownable2Step, IUnlock {
     START_TIME = _startTime;
     TOTAL_AMOUNT = _totalAmount;
     VESTING_TOKEN = _vestingToken;
-    FIRST_MILESTONE_TIMESTAMP = START_TIME + DAYS_UNTIL_FIRST_MILESTONE;
+    FIRST_MILESTONE_TIMESTAMP = START_TIME + SECONDS_UNTIL_FIRST_MILESTONE;
     UNLOCKED_AT_FIRST_MILESTONE = TOTAL_AMOUNT / 13;
     UNLOCKED_AFTER_FIRST_MILESTONE = TOTAL_AMOUNT - UNLOCKED_AT_FIRST_MILESTONE;
   }
@@ -72,7 +72,7 @@ contract Unlock is Ownable2Step, IUnlock {
 
     uint256 _timeSinceFirstMilestone = _timestamp - FIRST_MILESTONE_TIMESTAMP;
     _unlockedAmount = UNLOCKED_AT_FIRST_MILESTONE
-      + (UNLOCKED_AFTER_FIRST_MILESTONE * _timeSinceFirstMilestone) / DAYS_UNTIL_FIRST_MILESTONE;
+      + (UNLOCKED_AFTER_FIRST_MILESTONE * _timeSinceFirstMilestone) / SECONDS_UNTIL_FIRST_MILESTONE;
     if (_unlockedAmount > TOTAL_AMOUNT) _unlockedAmount = TOTAL_AMOUNT;
   }
 }
