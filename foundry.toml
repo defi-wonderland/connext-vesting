@@ -13,7 +13,7 @@ solc_version = '0.8.20'
 src = 'solidity'
 test = 'solidity/test'
 out = 'out'
-libs = ["node_modules"]
+libs = ['node_modules']
 optimizer_runs = 10_000
 
 [profile.optimized]
