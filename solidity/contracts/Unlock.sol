@@ -2,8 +2,9 @@
 pragma solidity 0.8.20;
 
 import {Ownable, Ownable2Step} from '@openzeppelin/contracts/access/Ownable2Step.sol';
+import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
+
 import {IUnlock} from 'interfaces/IUnlock.sol';
-import {IERC20} from 'isolmate/interfaces/tokens/IERC20.sol';
 
 contract Unlock is Ownable2Step, IUnlock {
   /// @inheritdoc IUnlock
