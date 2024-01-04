@@ -6,6 +6,9 @@ concurrency:
   group: ${{github.workflow}}-${{github.ref}}
   cancel-in-progress: true
 
+env:
+  MAINNET_RPC: ${{ env.MAINNET_RPC }}
+
 jobs:
   integration-tests:
     name: Run Integration Tests
