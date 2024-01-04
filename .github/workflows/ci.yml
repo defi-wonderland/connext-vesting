@@ -31,7 +31,7 @@ jobs:
         run: yarn build
 
       - name: Run tests
-        run: yarn test:integration
+        run: yarn test
 
   lint:
     name: Lint Commit Messages
