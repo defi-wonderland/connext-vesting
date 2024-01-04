@@ -17,11 +17,24 @@ contract IntegrationUnlock is IntegrationBase {
     _firstMilestoneTimestamp = _unlock.FIRST_MILESTONE_TIMESTAMP();
   }
 
+  /**
+   * @notice Testing the constructor logic, it should set the owner and the start time
+   */
   function test_Constructor() public {
     assertEq(Ownable2Step(_unlockAddress).owner(), owner);
     assertEq(_unlock.START_TIME(), block.timestamp + 10 minutes);
   }
 
+  /**
+   * @notice The unlocked amount should be different at various points in time.
+   *  At the beginning of the unlocking period: 0 tokens
+   *  Just before the first milestone: 0 token
+   *  At the first milestone: 1,920,000 tokens
+   *  10 days after the first milestone: 2,551,232 tokens
+   *  100 days after the first milestone: 8,232,328 tokens
+   *  At the end of the unlocking period: 24,960,000 tokens
+   *  After the end of the unlocking period: 24,960,000 tokens
+   */
   function test_UnlockedAtTimestamp() public {
     assertEq(_unlock.unlockedAtTimestamp(_unlockStartTime), 0);
     assertEq(_unlock.unlockedAtTimestamp(_firstMilestoneTimestamp - 1), 0);
@@ -35,6 +48,10 @@ contract IntegrationUnlock is IntegrationBase {
     assertEq(_unlock.unlockedAtTimestamp(_firstMilestoneTimestamp + 365 days + 10 days), 24_960_000 ether);
   }
 
+  /**
+   * @notice The withdrawable amount should be different at various points in time, the same way as the unlocked amount.
+   * It should take into account already withdrawn tokens.
+   */
   function test_WithdrawableAmount() public {
     deal(NEXT_TOKEN_ADDRESS, _unlockAddress, 25_000_000 ether);
 
@@ -53,27 +70,33 @@ contract IntegrationUnlock is IntegrationBase {
     _unlock.withdraw(receiver);
     assertEq(_unlock.withdrawableAmount(), 0 ether);
 
+    // 2,551,232 tokens have been withdrawn
     vm.warp(_firstMilestoneTimestamp + 100 days);
-    assertApproxEqAbs(8_232_328 ether - _unlock.withdrawableAmount(), 2_551_232 ether, MAX_DELTA);
+    assertApproxEqAbs(_unlock.withdrawableAmount(), 8_232_328 ether - 2_551_232 ether, MAX_DELTA);
 
     vm.warp(_firstMilestoneTimestamp + 365 days);
-    assertApproxEqAbs(24_960_000 ether - _unlock.withdrawableAmount(), 2_551_232 ether, MAX_DELTA);
+    assertApproxEqAbs(_unlock.withdrawableAmount(), 24_960_000 ether - 2_551_232 ether, MAX_DELTA);
 
     vm.warp(_firstMilestoneTimestamp + 365 days + 10 days);
-    assertApproxEqAbs(24_960_000 ether - _unlock.withdrawableAmount(), 2_551_232 ether, MAX_DELTA);
+    assertApproxEqAbs(_unlock.withdrawableAmount(), 24_960_000 ether - 2_551_232 ether, MAX_DELTA);
   }
 
+  /**
+   * @notice Testing the withdrawal logic. The unlocking rate should not depend on the balance of the contract.
+   */
   function test_Withdraw() public {
-    // deal more than withdrawable
+    // Deal more tokens that will be locked
     deal(NEXT_TOKEN_ADDRESS, _unlockAddress, 2_000_000 ether);
     vm.warp(_firstMilestoneTimestamp);
 
     vm.startPrank(owner);
     _unlock.withdraw(receiver);
+
+    // Even though the contract has more tokens, the unlocked amount should be the same
     assertEq(_unlock.withdrawnAmount(), 1_920_000 ether);
     assertEq(_nextToken.balanceOf(receiver), 1_920_000 ether);
 
-    // try again and expect no changes
+    // Try again and expect no changes
     _unlock.withdraw(receiver);
     assertEq(_unlock.withdrawnAmount(), 1_920_000 ether);
     assertEq(_nextToken.balanceOf(receiver), 1_920_000 ether);
@@ -81,6 +104,9 @@ contract IntegrationUnlock is IntegrationBase {
     vm.stopPrank();
   }
 
+  /**
+   * @notice Shouldn't revert if there is nothing to withdraw
+   */
   function test_Withdraw_NoSupply() public {
     vm.prank(owner);
     _unlock.withdraw(receiver);
@@ -89,6 +115,9 @@ contract IntegrationUnlock is IntegrationBase {
     assertEq(_nextToken.balanceOf(receiver), 0);
   }
 
+  /**
+   * @notice Shouldn't allow anyone but the owner to initiate the withdrawal
+   */
   function test_Withdraw_Unauthorized() public {
     address _randomAddress = makeAddr('randomAddress');
     vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, _randomAddress));
@@ -96,6 +125,9 @@ contract IntegrationUnlock is IntegrationBase {
     _unlock.withdraw(receiver);
   }
 
+  /**
+   * @notice 2-step ownership transfer
+   */
   function test_transferOwnership() public {
     address _newOwner = makeAddr('newOwner');
     Ownable2Step _unlockOwnable = Ownable2Step(_unlockAddress);
