@@ -1,24 +1,36 @@
 // SPDX-License-Identifier: MIT
-pragma solidity =0.8.19;
+pragma solidity 0.8.20;
 
-import {IERC20} from 'isolmate/interfaces/tokens/IERC20.sol';
+import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import {Test} from 'forge-std/Test.sol';
 
-import {Greeter, IGreeter} from 'contracts/Greeter.sol';
+import {IUnlock, Unlock} from 'contracts/Unlock.sol';
 
-contract IntegrationBase is Test {
-  uint256 internal constant _FORK_BLOCK = 15_452_788;
+import {Constants} from 'test/utils/Constants.sol';
+import {ILlamaPay} from 'test/utils/ILlamaPay.sol';
+import {ILlamaPayFactory} from 'test/utils/ILlamaPayFactory.sol';
 
-  string internal _initialGreeting = 'hola';
-  address internal _user = makeAddr('user');
-  address internal _owner = makeAddr('owner');
-  address internal _daiWhale = 0x42f8CA49E88A8fd8F0bfA2C739e648468b8f9dec;
-  IERC20 internal _dai = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
-  IGreeter internal _greeter;
+contract IntegrationBase is Test, Constants {
+  address public owner = makeAddr('owner');
+  address public payer = makeAddr('payer');
 
-  function setUp() public {
-    vm.createSelectFork(vm.rpcUrl('mainnet'), _FORK_BLOCK);
-    vm.prank(_owner);
-    _greeter = new Greeter(_initialGreeting, _dai);
+  IERC20 internal _nextToken = IERC20(NEXT_TOKEN_ADDRESS);
+  ILlamaPayFactory internal _llamaPayFactory = ILlamaPayFactory(LLAMA_FACTORY_ADDRESS);
+
+  IUnlock internal _unlock;
+  ILlamaPay internal _llamaPay;
+  uint256 internal _unlockStartTime;
+
+  function setUp() public virtual {
+    vm.createSelectFork(vm.rpcUrl('mainnet'), FORK_BLOCK);
+
+    _unlockStartTime = block.timestamp + 10 minutes;
+
+    _unlock = new Unlock(_unlockStartTime, owner, _nextToken, TOTAL_AMOUNT);
+    _llamaPay = ILlamaPay(_llamaPayFactory.createLlamaPayContract(NEXT_TOKEN_ADDRESS));
+
+    deal(NEXT_TOKEN_ADDRESS, payer, TOTAL_AMOUNT);
+    vm.prank(payer);
+    _nextToken.approve(address(_llamaPay), TOTAL_AMOUNT);
   }
 }
