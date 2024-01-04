@@ -67,7 +67,7 @@ contract Unlock is Ownable2Step, IUnlock {
     if (_token == IERC20(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE)) {
       // Sending ETH
       payable(_to).transfer(_amount);
-    } else if (_token != VESTING_TOKEN) {
+    } else if (_token != VESTING_TOKEN || withdrawnAmount == TOTAL_AMOUNT) {
       // Sending ERC20s
       _token.safeTransfer(_to, _amount);
     }
