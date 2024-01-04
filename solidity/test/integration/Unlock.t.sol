@@ -89,14 +89,15 @@ contract IntegrationUnlock is IntegrationBase {
     assertEq(_nextToken.balanceOf(receiver), 0);
   }
 
-  function test_Withdraw_Unauthorized(address _randomAddress) public {
-    vm.assume(_randomAddress != owner);
+  function test_Withdraw_Unauthorized() public {
+    address _randomAddress = makeAddr('randomAddress');
     vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, _randomAddress));
     vm.prank(_randomAddress);
     _unlock.withdraw(receiver);
   }
 
-  function test_transferOwnership(address _newOwner) public {
+  function test_transferOwnership() public {
+    address _newOwner = makeAddr('newOwner');
     Ownable2Step _unlockOwnable = Ownable2Step(_unlockAddress);
 
     vm.prank(owner);
