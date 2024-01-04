@@ -22,7 +22,7 @@ yarn deploy:sepolia
 
 ## Licensing
 
-The primary license for Prophet contracts is MIT, see [`LICENSE`](./LICENSE).
+The primary license for the contracts is MIT, see [`LICENSE`](./LICENSE).
 
 ## Contributors
 
