@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity =0.8.20;
+pragma solidity 0.8.20;
 
 import {Ownable, Ownable2Step} from '@openzeppelin/contracts/access/Ownable2Step.sol';
 import {IntegrationBase} from 'test/integration/IntegrationBase.sol';
