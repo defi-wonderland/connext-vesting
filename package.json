@@ -13,8 +13,8 @@
   "scripts": {
     "build": "forge build",
     "coverage": "forge coverage --match-contract Integration",
-    "deploy": "dotenv -- bash -c 'forge script Deploy -vv --slow --broadcast --rpc-url $MAINNET_RPC' --verify --etherscan-api-key $ETHERSCAN_API_KEY' ",
-    "deploy:sepolia": "dotenv -- bash -c 'forge script Deploy -vv --slow --broadcast --rpc-url $SEPOLIA_RPC' --verify --etherscan-api-key $ETHERSCAN_API_KEY'",
+    "deploy": "dotenv -- bash -c 'forge script Deploy -vv --slow --broadcast --rpc-url $MAINNET_RPC --verify --etherscan-api-key $ETHERSCAN_API_KEY'",
+    "deploy:sepolia": "dotenv -- bash -c 'forge script Deploy -vv --slow --broadcast --rpc-url $SEPOLIA_RPC --verify --etherscan-api-key $ETHERSCAN_API_KEY'",
     "lint:check": "yarn lint:sol-tests && yarn lint:sol-logic && forge fmt --check",
     "lint:fix": "sort-package-json && forge fmt && yarn lint:sol-tests --fix && yarn lint:sol-logic --fix",
     "lint:sol-logic": "solhint -c .solhint.json 'solidity/contracts/**/*.sol' 'solidity/interfaces/**/*.sol'",
