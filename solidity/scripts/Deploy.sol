@@ -10,7 +10,7 @@ contract Deploy is Script {
   Unlock public unlock;
 
   IERC20 public constant VESTING_TOKEN = IERC20(0xFE67A4450907459c3e1FFf623aA927dD4e28c67a);
-  uint256 public constant START_TIME = 1_625_097_600;
+  uint256 public constant START_TIME = 1_693_872_000;
   uint256 public constant TOTAL_AMOUNT = 24_960_000 ether;
   address public constant OWNER = 0x555B1Ea88dD9B9DA96bc0E35805e1D1C6802552f;
 
