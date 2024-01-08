@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {VestingWalletWithCliff} from './VestingWalletWithCliff.sol';
+import {VestingWallet, VestingWalletWithCliff} from './VestingWalletWithCliff.sol';
 import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 
 contract ConnextVestingWallet is VestingWalletWithCliff {
@@ -16,7 +16,7 @@ contract ConnextVestingWallet is VestingWalletWithCliff {
    * @dev Vesting schedule:
    *      - 1/13 of the tokens will be released after 1 year, starting from Sept 5th 2023
    *      - 1/13 of the tokens will be released every month after that, for 12 months
-   * 
+   *
    *     The equivalent vesting schedule has a 13 months duration, with a 1 month cliff, offsetted to
    *     start from `Sept 5th 2024 - 1 month`: At Sept 5th 2024 the cliff is triggered unlocking
    *     1/13 of the tokens, and then 1/13 of the tokens will be linearly unlocked every month after that.
@@ -35,23 +35,28 @@ contract ConnextVestingWallet is VestingWalletWithCliff {
   error NoVestingAgreement();
   error ZeroAddress();
 
+  /// @inheritdoc VestingWallet
+  /// @dev This contract is only meant to vest CONNEXT tokens
   function vestedAmount(uint64) public view virtual override returns (uint256) {
     revert NoVestingAgreement();
   }
 
-  /**
-   * @dev Calculates the amount of tokens that has already vested.
-   */
+  /// @inheritdoc VestingWallet
+  /// @dev This contract is only meant to vest CONNEXT tokens
   function vestedAmount(address _token, uint64 _timestamp) public view virtual override returns (uint256) {
     if (_token != CONNEXT_TOKEN_ADDRESS) revert NoVestingAgreement();
 
     return _vestingSchedule(TOTAL_AMOUNT, _timestamp);
   }
 
+  /// @inheritdoc VestingWallet
+  /// @dev This contract is only meant to vest CONNEXT tokens
   function releasable() public view virtual override returns (uint256) {
     revert NoVestingAgreement();
   }
 
+  /// @inheritdoc VestingWallet
+  /// @dev This contract is only meant to vest CONNEXT tokens
   function releasable(address _token) public view virtual override returns (uint256 _amount) {
     if (_token != CONNEXT_TOKEN_ADDRESS) revert NoVestingAgreement();
 
@@ -60,6 +65,7 @@ contract ConnextVestingWallet is VestingWalletWithCliff {
     _amount = _balance < _amount ? _balance : _amount;
   }
 
+  /// @dev This contract allows to withdraw any token, with the exception of vested CONNEXT tokens
   function sendDust(IERC20 _token, uint256 _amount, address _to) external onlyOwner {
     if (_to == address(0)) revert ZeroAddress();
     if (_token == IERC20(CONNEXT_TOKEN_ADDRESS) && released(CONNEXT_TOKEN_ADDRESS) != TOTAL_AMOUNT) {
