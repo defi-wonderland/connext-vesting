@@ -3,6 +3,8 @@ pragma solidity 0.8.20;
 
 import {Ownable, Ownable2Step} from '@openzeppelin/contracts/access/Ownable2Step.sol';
 import {VestingWallet} from '@openzeppelin/contracts/finance/VestingWallet.sol';
+
+import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import {IUnlock} from 'interfaces/IUnlock.sol';
 
 contract Unlock is VestingWallet, Ownable2Step, IUnlock {
@@ -52,5 +54,11 @@ contract Unlock is VestingWallet, Ownable2Step, IUnlock {
 
   function transferOwnership(address _newOwner) public virtual override(Ownable, Ownable2Step) onlyOwner {
     super.transferOwnership(_newOwner);
+  }
+
+  function releasable(address _token) public view virtual override returns (uint256 _amount) {
+    _amount = vestedAmount(_token, uint64(block.timestamp)) - released(_token);
+    uint256 _balance = IERC20(_token).balanceOf(address(this));
+    _amount = _balance < _amount ? _balance : _amount;
   }
 }

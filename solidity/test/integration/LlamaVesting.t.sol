@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
+import {console} from 'forge-std/console.sol';
 import {IntegrationBase} from 'test/integration/IntegrationBase.sol';
 
 contract IntegrationLlamaVesting is IntegrationBase {
@@ -28,11 +29,11 @@ contract IntegrationLlamaVesting is IntegrationBase {
 
     // After the 1st milestone
     _warpAndWithdraw(_firstMilestoneTimestamp + 10 days);
-    _assertBalances(2_551_232 ether);
+    _assertBalances(2_550_795 ether);
 
     // Linear unlock after the 1st milestone
     _warpAndWithdraw(_firstMilestoneTimestamp + 365 days);
-    _assertBalances(12_480_118 ether);
+    _assertBalances(12_480_000 ether);
 
     // After the unlocking period has ended
     _warpAndWithdraw(_firstMilestoneTimestamp + 365 days * 3 + 10 days);
@@ -45,8 +46,6 @@ contract IntegrationLlamaVesting is IntegrationBase {
   function _warpAndWithdraw(uint256 _timestamp) internal {
     vm.warp(_timestamp);
     _llamaPay.withdraw(payer, address(_unlock), PAY_PER_SECOND);
-
-    // vm.prank(owner);
     _unlock.release(address(_nextToken));
   }
 
