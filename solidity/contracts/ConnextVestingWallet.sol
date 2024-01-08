@@ -9,6 +9,7 @@ contract ConnextVestingWallet is VestingWalletWithCliff {
   address constant CONNEXT_TOKEN_ADDRESS = 0xFE67A4450907459c3e1FFf623aA927dD4e28c67a;
 
   uint64 constant ONE_YEAR = 365 days;
+  uint64 constant ONE_MONTH = ONE_YEAR / 12;
   uint64 constant SEPT_05_2023 = 1_693_872_000;
 
   /**
@@ -20,10 +21,10 @@ contract ConnextVestingWallet is VestingWalletWithCliff {
    *     start from `Sept 5th 2024 - 1 month`: At Sept 5th 2024 the cliff is triggered unlocking
    *     1/13 of the tokens, and then 1/13 of the tokens will be linearly unlocked every month after that.
    */
-  uint64 constant VESTING_OFFSET = ONE_YEAR - ONE_YEAR / 12;
+  uint64 constant VESTING_OFFSET = ONE_YEAR - ONE_MONTH;
   uint64 constant VESTING_START_DATE = SEPT_05_2023 + VESTING_OFFSET;
-  uint64 constant VESTING_DURATION = ONE_YEAR * 13 / 12;
-  uint64 constant VESTING_CLIFF_DURATION = ONE_YEAR / 12;
+  uint64 constant VESTING_DURATION = ONE_YEAR + ONE_MONTH;
+  uint64 constant VESTING_CLIFF_DURATION = ONE_MONTH;
 
   uint256 constant TOTAL_AMOUNT = 24_960_000 ether;
 
