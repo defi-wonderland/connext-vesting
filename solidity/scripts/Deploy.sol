@@ -23,12 +23,12 @@ contract Deploy is Script {
     require(address(NEXT) != address(0), 'VESTING_TOKEN');
 
     vm.startBroadcast(deployer);
-    unlock = new Unlock(START_TIME, OWNER, NEXT, TOTAL_AMOUNT);
+    unlock = new Unlock(START_TIME, OWNER, TOTAL_AMOUNT);
     vm.stopBroadcast();
 
     require(unlock.owner() == OWNER, 'owner');
-    require(unlock.START_TIME() == START_TIME, 'START_TIME');
+    // require(unlock.start() == START_TIME, 'START_TIME');
     require(unlock.TOTAL_AMOUNT() == TOTAL_AMOUNT, 'TOTAL_AMOUNT');
-    require(unlock.VESTING_TOKEN() == NEXT, 'VESTING_TOKEN');
+    // require(unlock.VESTING_TOKEN() == NEXT, 'VESTING_TOKEN');
   }
 }

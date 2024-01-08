@@ -6,6 +6,7 @@ import {Test} from 'forge-std/Test.sol';
 
 import {IUnlock, Unlock} from 'contracts/Unlock.sol';
 
+import {VestingWallet} from '@openzeppelin/contracts/finance/VestingWallet.sol';
 import {Constants} from 'test/utils/Constants.sol';
 import {ILlamaPay} from 'test/utils/ILlamaPay.sol';
 import {ILlamaPayFactory} from 'test/utils/ILlamaPayFactory.sol';
@@ -17,16 +18,17 @@ contract IntegrationBase is Test, Constants {
   IERC20 internal _nextToken = IERC20(NEXT_TOKEN_ADDRESS);
   ILlamaPayFactory internal _llamaPayFactory = ILlamaPayFactory(LLAMA_FACTORY_ADDRESS);
 
-  IUnlock internal _unlock;
+  // IUnlock internal _unlock;
+  VestingWallet internal _unlock;
   ILlamaPay internal _llamaPay;
-  uint256 internal _unlockStartTime;
+  uint64 internal _unlockStartTime;
 
   function setUp() public virtual {
     vm.createSelectFork(vm.rpcUrl('mainnet'), FORK_BLOCK);
 
-    _unlockStartTime = block.timestamp + 10 minutes;
+    _unlockStartTime = uint64(block.timestamp + 10 minutes);
 
-    _unlock = new Unlock(_unlockStartTime, owner, _nextToken, TOTAL_AMOUNT);
+    _unlock = new Unlock(_unlockStartTime, owner, TOTAL_AMOUNT);
     _llamaPay = ILlamaPay(_llamaPayFactory.createLlamaPayContract(NEXT_TOKEN_ADDRESS));
 
     deal(NEXT_TOKEN_ADDRESS, payer, TOTAL_AMOUNT);
