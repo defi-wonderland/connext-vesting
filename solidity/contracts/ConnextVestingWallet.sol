@@ -9,11 +9,11 @@ import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 
 /**
  * @dev Vesting schedule:
- *      - 1/13 of the tokens will be released after 1 year, starting from _vestingStartDate
+ *      - 1/13 of the tokens will be released after 1 year, starting from _initTimestamp
  *      - 1/13 of the tokens will be released every month after that, for 12 months
  *
  *     The equivalent vesting schedule has a 13 months duration, with a 1 month cliff, offsetted to
- *     start from `Sept 5th 2024 - 1 month`: At Sept 5th 2024 the cliff is triggered unlocking
+ *     start from e.g. Jan 1st 2023: At Feb 1st 2023 the cliff is triggered unlocking
  *     1/13 of the tokens, and then 1/13 of the tokens will be linearly unlocked every month after that.
  */
 contract ConnextVestingWallet is VestingWalletWithCliff, Ownable2Step {
