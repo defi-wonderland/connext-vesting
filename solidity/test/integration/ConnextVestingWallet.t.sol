@@ -169,7 +169,7 @@ contract IntegrationConnextVestingWallet is IntegrationBase {
 
     vm.deal(_connextVestingWalletAddress, _dustAmount);
     deal(DAI_ADDRESS, _connextVestingWalletAddress, _dustAmount);
-    deal(NEXT_TOKEN_ADDRESS, _connextVestingWalletAddress, _dustAmount + _connextVestingWallet.TOTAL_AMOUNT());
+    deal(NEXT_TOKEN_ADDRESS, _connextVestingWalletAddress, _dustAmount + _connextVestingWallet.totalAmount());
 
     // Random dude cannot collect dust
     address _bob = makeAddr('bob');

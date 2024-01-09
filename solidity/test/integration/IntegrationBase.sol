@@ -26,7 +26,7 @@ contract IntegrationBase is Test, Constants {
 
     _unlockStartTime = uint64(block.timestamp + 10 minutes);
 
-    _connextVestingWallet = new ConnextVestingWallet(_unlockStartTime, NEXT_TOKEN_ADDRESS, owner);
+    _connextVestingWallet = new ConnextVestingWallet(_unlockStartTime, owner, 24_960_000 ether);
     _llamaPay = ILlamaPay(_llamaPayFactory.createLlamaPayContract(NEXT_TOKEN_ADDRESS));
 
     deal(NEXT_TOKEN_ADDRESS, payer, TOTAL_AMOUNT);
