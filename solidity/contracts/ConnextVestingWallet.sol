@@ -19,7 +19,7 @@ import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 contract ConnextVestingWallet is VestingWalletWithCliff, Ownable2Step {
   uint64 public constant ONE_YEAR = 365 days;
   uint64 public constant ONE_MONTH = ONE_YEAR / 12;
-  address public constant PAYMENT_TOKEN = 0xFE67A4450907459c3e1FFf623aA927dD4e28c67a; // Mainnet NEXT token
+  address public constant NEXT_TOKEN = 0xFE67A4450907459c3e1FFf623aA927dD4e28c67a; // Mainnet NEXT token
 
   uint64 public constant VESTING_OFFSET = ONE_YEAR - ONE_MONTH;
   uint64 public constant VESTING_DURATION = ONE_YEAR + ONE_MONTH;
@@ -41,29 +41,29 @@ contract ConnextVestingWallet is VestingWalletWithCliff, Ownable2Step {
   error ZeroAddress();
 
   /// @inheritdoc VestingWallet
-  /// @dev This contract is only meant to vest CONNEXT tokens
+  /// @dev This contract is only meant to vest NEXT tokens
   function vestedAmount(uint64) public view virtual override returns (uint256 _amount) {
     revert NoVestingAgreement();
   }
 
   /// @inheritdoc VestingWallet
-  /// @dev This contract is only meant to vest CONNEXT tokens
+  /// @dev This contract is only meant to vest NEXT tokens
   function vestedAmount(address _token, uint64 _timestamp) public view virtual override returns (uint256 _amount) {
-    if (_token != PAYMENT_TOKEN) revert NoVestingAgreement();
+    if (_token != NEXT_TOKEN) revert NoVestingAgreement();
 
     return _vestingSchedule(totalAmount, _timestamp);
   }
 
   /// @inheritdoc VestingWallet
-  /// @dev This contract is only meant to vest CONNEXT tokens
+  /// @dev This contract is only meant to vest NEXT tokens
   function releasable() public view virtual override returns (uint256 _amount) {
     revert NoVestingAgreement();
   }
 
   /// @inheritdoc VestingWallet
-  /// @dev This contract is only meant to vest CONNEXT tokens
+  /// @dev This contract is only meant to vest NEXT tokens
   function releasable(address _token) public view virtual override returns (uint256 _amount) {
-    if (_token != PAYMENT_TOKEN) revert NoVestingAgreement();
+    if (_token != NEXT_TOKEN) revert NoVestingAgreement();
 
     _amount = vestedAmount(_token, uint64(block.timestamp)) - released(_token);
     uint256 _balance = IERC20(_token).balanceOf(address(this));
@@ -83,10 +83,10 @@ contract ConnextVestingWallet is VestingWalletWithCliff, Ownable2Step {
   }
 
   /// @notice Collect dust from the contract
-  /// @dev This contract allows to withdraw any token, with the exception of vested CONNEXT tokens
+  /// @dev This contract allows to withdraw any token, with the exception of vested NEXT tokens
   function sendDust(IERC20 _token, uint256 _amount, address _to) external onlyOwner {
     if (_to == address(0)) revert ZeroAddress();
-    if (_token == IERC20(PAYMENT_TOKEN) && released(PAYMENT_TOKEN) != totalAmount) {
+    if (_token == IERC20(NEXT_TOKEN) && released(NEXT_TOKEN) != totalAmount) {
       revert NoVestingAgreement();
     }
 
