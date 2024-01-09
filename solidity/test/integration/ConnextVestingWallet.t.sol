@@ -7,8 +7,6 @@ import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import {ConnextVestingWallet} from 'contracts/ConnextVestingWallet.sol';
 import {IntegrationBase} from 'test/integration/IntegrationBase.sol';
 
-import {console} from 'forge-std/console.sol';
-
 contract IntegrationConnextVestingWallet is IntegrationBase {
   address public receiver = makeAddr('receiver');
 

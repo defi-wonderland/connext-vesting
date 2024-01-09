@@ -17,9 +17,6 @@ import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
  *     1/13 of the tokens, and then 1/13 of the tokens will be linearly unlocked every month after that.
  */
 contract ConnextVestingWallet is VestingWalletWithCliff, Ownable2Step {
-  address public paymentToken;
-  uint64 public initTimestamp;
-
   uint64 public constant ONE_YEAR = 365 days;
   uint64 public constant ONE_MONTH = ONE_YEAR / 12;
 
@@ -27,6 +24,9 @@ contract ConnextVestingWallet is VestingWalletWithCliff, Ownable2Step {
   uint64 public constant VESTING_DURATION = ONE_YEAR + ONE_MONTH;
   uint64 public constant VESTING_CLIFF_DURATION = ONE_MONTH;
   uint256 public constant TOTAL_AMOUNT = 24_960_000 ether;
+
+  address public paymentToken;
+  uint64 public initTimestamp;
 
   constructor(
     uint64 _initTimestamp,
@@ -42,13 +42,13 @@ contract ConnextVestingWallet is VestingWalletWithCliff, Ownable2Step {
 
   /// @inheritdoc VestingWallet
   /// @dev This contract is only meant to vest CONNEXT tokens
-  function vestedAmount(uint64) public view virtual override returns (uint256) {
+  function vestedAmount(uint64) public view virtual override returns (uint256 _amount) {
     revert NoVestingAgreement();
   }
 
   /// @inheritdoc VestingWallet
   /// @dev This contract is only meant to vest CONNEXT tokens
-  function vestedAmount(address _token, uint64 _timestamp) public view virtual override returns (uint256) {
+  function vestedAmount(address _token, uint64 _timestamp) public view virtual override returns (uint256 _amount) {
     if (_token != paymentToken) revert NoVestingAgreement();
 
     return _vestingSchedule(TOTAL_AMOUNT, _timestamp);
@@ -56,7 +56,7 @@ contract ConnextVestingWallet is VestingWalletWithCliff, Ownable2Step {
 
   /// @inheritdoc VestingWallet
   /// @dev This contract is only meant to vest CONNEXT tokens
-  function releasable() public view virtual override returns (uint256) {
+  function releasable() public view virtual override returns (uint256 _amount) {
     revert NoVestingAgreement();
   }
 
