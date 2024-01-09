@@ -7,12 +7,12 @@ contract VestingWalletWithCliff is VestingWallet {
   uint64 private immutable _cliff;
 
   constructor(
-    address beneficiary,
-    uint64 startTimestamp,
-    uint64 durationSeconds,
-    uint64 cliffSeconds
-  ) VestingWallet(beneficiary, startTimestamp, durationSeconds) {
-    _cliff = startTimestamp + cliffSeconds;
+    address _beneficiary,
+    uint64 _vestingStartTimestamp,
+    uint64 _durationSeconds,
+    uint64 _cliffDurationSeconds
+  ) VestingWallet(_beneficiary, _vestingStartTimestamp, _durationSeconds) {
+    _cliff = _vestingStartTimestamp + _cliffDurationSeconds;
   }
 
   /**
