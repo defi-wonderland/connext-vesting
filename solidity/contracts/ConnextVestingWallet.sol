@@ -2,6 +2,9 @@
 pragma solidity 0.8.20;
 
 import {VestingWallet, VestingWalletWithCliff} from './VestingWalletWithCliff.sol';
+
+import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
+import {Ownable2Step} from '@openzeppelin/contracts/access/Ownable2Step.sol';
 import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 
 /**
@@ -13,8 +16,9 @@ import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
  *     start from `Sept 5th 2024 - 1 month`: At Sept 5th 2024 the cliff is triggered unlocking
  *     1/13 of the tokens, and then 1/13 of the tokens will be linearly unlocked every month after that.
  */
-contract ConnextVestingWallet is VestingWalletWithCliff {
+contract ConnextVestingWallet is VestingWalletWithCliff, Ownable2Step {
   address public paymentToken;
+  uint64 public initTimestamp;
 
   uint64 public constant ONE_YEAR = 365 days;
   uint64 public constant ONE_MONTH = ONE_YEAR / 12;
@@ -25,11 +29,12 @@ contract ConnextVestingWallet is VestingWalletWithCliff {
   uint256 public constant TOTAL_AMOUNT = 24_960_000 ether;
 
   constructor(
-    uint64 _startTimestamp,
+    uint64 _initTimestamp,
     address _paymentToken,
     address _beneficiary
-  ) VestingWalletWithCliff(_beneficiary, _startTimestamp + VESTING_OFFSET, VESTING_DURATION, VESTING_CLIFF_DURATION) {
+  ) VestingWalletWithCliff(_beneficiary, _initTimestamp + VESTING_OFFSET, VESTING_DURATION, VESTING_CLIFF_DURATION) {
     paymentToken = _paymentToken;
+    initTimestamp = _initTimestamp;
   }
 
   error NoVestingAgreement();
@@ -65,6 +70,19 @@ contract ConnextVestingWallet is VestingWalletWithCliff {
     _amount = _balance < _amount ? _balance : _amount;
   }
 
+  /// @inheritdoc Ownable2Step
+  /// @dev override to aviod linearization
+  function _transferOwnership(address _newOwner) internal virtual override(Ownable2Step, Ownable) {
+    super._transferOwnership(_newOwner);
+  }
+
+  /// @inheritdoc Ownable2Step
+  /// @dev override to aviod linearization
+  function transferOwnership(address _newOwner) public virtual override(Ownable2Step, Ownable) {
+    super.transferOwnership(_newOwner);
+  }
+
+  /// @notice Collect dust from the contract
   /// @dev This contract allows to withdraw any token, with the exception of vested CONNEXT tokens
   function sendDust(IERC20 _token, uint256 _amount, address _to) external onlyOwner {
     if (_to == address(0)) revert ZeroAddress();
