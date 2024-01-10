@@ -7,16 +7,21 @@ import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import {ConnextVestingWallet} from 'contracts/ConnextVestingWallet.sol';
 import {IntegrationBase} from 'test/integration/IntegrationBase.sol';
 
+/**
+ * TODO: Make this tests more generic and clear
+ */
 contract IntegrationConnextVestingWallet is IntegrationBase {
   address public receiver = makeAddr('receiver');
 
   address internal _connextVestingWalletAddress;
   uint64 internal _firstMilestoneTimestamp;
+  uint64 internal _connextTokenLaunch;
 
   function setUp() public override {
     super.setUp();
 
     _connextVestingWalletAddress = address(_connextVestingWallet);
+    _connextTokenLaunch = uint64(_connextVestingWallet.NEXT_TOKEN_LAUNCH());
     _firstMilestoneTimestamp = uint64(_connextVestingWallet.cliff());
   }
 
@@ -25,8 +30,7 @@ contract IntegrationConnextVestingWallet is IntegrationBase {
    */
   function test_Constructor() public {
     assertEq(Ownable2Step(_connextVestingWalletAddress).owner(), owner);
-    assertEq(_connextVestingWallet.initTimestamp(), block.timestamp + 10 minutes);
-    assertEq(_connextVestingWallet.start(), block.timestamp + 10 minutes + 365 days * 11 / 12);
+    assertEq(_connextVestingWallet.TOTAL_AMOUNT(), TOTAL_AMOUNT);
   }
 
   /**
@@ -40,7 +44,7 @@ contract IntegrationConnextVestingWallet is IntegrationBase {
    *  After the end of the unlocking period: 24,960,000 tokens
    */
   function test_UnlockedAtTimestamp() public {
-    assertEq(_connextVestingWallet.vestedAmount(NEXT_TOKEN_ADDRESS, _unlockStartTime), 0);
+    assertEq(_connextVestingWallet.vestedAmount(NEXT_TOKEN_ADDRESS, _connextTokenLaunch), 0);
     assertEq(_connextVestingWallet.vestedAmount(NEXT_TOKEN_ADDRESS, _firstMilestoneTimestamp - 1), 0);
 
     assertEq(_connextVestingWallet.vestedAmount(NEXT_TOKEN_ADDRESS, _firstMilestoneTimestamp), 1_920_000 ether);
@@ -74,7 +78,7 @@ contract IntegrationConnextVestingWallet is IntegrationBase {
 
     assertEq(_connextVestingWallet.releasable(NEXT_TOKEN_ADDRESS), 0);
 
-    vm.warp(_unlockStartTime + 364 days);
+    vm.warp(_connextTokenLaunch + 364 days);
     assertEq(_connextVestingWallet.releasable(NEXT_TOKEN_ADDRESS), 0);
 
     vm.warp(_firstMilestoneTimestamp);
@@ -169,7 +173,7 @@ contract IntegrationConnextVestingWallet is IntegrationBase {
 
     vm.deal(_connextVestingWalletAddress, _dustAmount);
     deal(DAI_ADDRESS, _connextVestingWalletAddress, _dustAmount);
-    deal(NEXT_TOKEN_ADDRESS, _connextVestingWalletAddress, _dustAmount + _connextVestingWallet.totalAmount());
+    deal(NEXT_TOKEN_ADDRESS, _connextVestingWalletAddress, _dustAmount + _connextVestingWallet.TOTAL_AMOUNT());
 
     // Random dude cannot collect dust
     address _bob = makeAddr('bob');
@@ -179,7 +183,7 @@ contract IntegrationConnextVestingWallet is IntegrationBase {
 
     // Can't collect the vesting token
     assertEq(_nextToken.balanceOf(_randomAddress), 0);
-    vm.expectRevert(abi.encodeWithSelector(ConnextVestingWallet.NoVestingAgreement.selector));
+    vm.expectRevert(abi.encodeWithSelector(ConnextVestingWallet.NotAllowed.selector));
     vm.prank(owner);
     _connextVestingWallet.sendDust(_nextToken, _dustAmount, _randomAddress);
     assertEq(_nextToken.balanceOf(_randomAddress), 0);

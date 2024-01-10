@@ -3,12 +3,18 @@ pragma solidity 0.8.20;
 
 import {IntegrationBase} from 'test/integration/IntegrationBase.sol';
 
+/**
+ * TODO: Add generic test to show the behaviour of vesting contract + llamaPay stream
+ *       At the beginning of the unlocking period: 0 tokens
+ *       Then limited by vesting contract
+ *       Then limited by llamaPay (after vesting period has ended)
+ */
 contract IntegrationLlamaVesting is IntegrationBase {
   uint256 internal _vestingStartTime;
 
   function setUp() public override {
     super.setUp();
-    _vestingStartTime = block.timestamp;
+    _vestingStartTime = _connextVestingWallet.start();
   }
 
   function test_VestAndUnlock() public {
@@ -42,6 +48,7 @@ contract IntegrationLlamaVesting is IntegrationBase {
    */
   function _warpAndWithdraw(uint256 _timestamp) internal {
     vm.warp(_timestamp);
+    //! TODO: Replace for LlamaPay V2 withdrawAll(uint256 _id)
     _llamaPay.withdraw(payer, address(_connextVestingWallet), PAY_PER_SECOND);
     _connextVestingWallet.release(NEXT_TOKEN_ADDRESS);
   }

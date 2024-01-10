@@ -10,6 +10,7 @@ import {Constants} from 'test/utils/Constants.sol';
 import {ILlamaPay} from 'test/utils/ILlamaPay.sol';
 import {ILlamaPayFactory} from 'test/utils/ILlamaPayFactory.sol';
 
+// TODO: Inherit and run Deploy.sol script, instead of deploying the contract here
 contract IntegrationBase is Test, Constants {
   address public owner = makeAddr('owner');
   address public payer = makeAddr('payer');
@@ -19,14 +20,12 @@ contract IntegrationBase is Test, Constants {
 
   ConnextVestingWallet internal _connextVestingWallet;
   ILlamaPay internal _llamaPay;
-  uint64 internal _unlockStartTime;
 
   function setUp() public virtual {
     vm.createSelectFork(vm.rpcUrl('mainnet'), FORK_BLOCK);
 
-    _unlockStartTime = uint64(block.timestamp + 10 minutes);
-
-    _connextVestingWallet = new ConnextVestingWallet(_unlockStartTime, owner, 24_960_000 ether);
+    _connextVestingWallet = new ConnextVestingWallet(owner, 24_960_000 ether);
+    //! TODO: Replace for LlamaPay V2
     _llamaPay = ILlamaPay(_llamaPayFactory.createLlamaPayContract(NEXT_TOKEN_ADDRESS));
 
     deal(NEXT_TOKEN_ADDRESS, payer, TOTAL_AMOUNT);
