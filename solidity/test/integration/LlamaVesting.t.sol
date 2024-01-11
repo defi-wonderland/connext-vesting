@@ -3,12 +3,14 @@ pragma solidity 0.8.20;
 
 import {IntegrationBase} from 'test/integration/IntegrationBase.sol';
 
+import {console} from 'forge-std/console.sol';
 /**
  * TODO: Add generic test to show the behaviour of vesting contract + llamaPay stream
  *       At the beginning of the unlocking period: 0 tokens
  *       Then limited by vesting contract
  *       Then limited by llamaPay (after vesting period has ended)
  */
+
 contract IntegrationLlamaVesting is IntegrationBase {
   uint256 internal _vestingStartTime;
 
@@ -17,28 +19,51 @@ contract IntegrationLlamaVesting is IntegrationBase {
     _vestingStartTime = _connextVestingWallet.start();
   }
 
-  function test_VestAndUnlock() public {
-    vm.prank(payer);
-
+  function test_VestAndUnlock_LaunchDate() public {
     // Before the cliff
-    uint256 _timestamp = _connextVestingWallet.cliff() - 1;
-    uint256 _vestedAmount = (_timestamp - VESTING_START_DATE) * TOTAL_AMOUNT / VESTING_DURATION;
+    uint256 _timestamp = VESTING_START_DATE;
     // The unlocking contract holds the tokens
     _warpAndWithdraw(_timestamp);
     _assertBalances(0);
-    assertEq(_nextToken.balanceOf(address(_connextVestingWallet)), _vestedAmount);
+    assertEq(_nextToken.balanceOf(address(_connextVestingWallet)), 0);
+  }
 
-    // After the 1st milestone
-    _warpAndWithdraw(_connextVestingWallet.cliff() + 10 days);
-    _assertBalances(2_551_232 ether);
+  function test_VestAndUnlock_1SecBeforeCliff() public {
+    // 1 secont before the cliff
+    uint256 _timestamp = VESTING_START_DATE + 365 days - 1;
+    _warpAndWithdraw(_timestamp);
+    _assertBalances(0);
+    assertApproxEqAbs(_nextToken.balanceOf(address(_connextVestingWallet)), 6_239_999 ether, MAX_DELTA);
+  }
 
-    // Linear unlock after the 1st milestone
-    _warpAndWithdraw(_connextVestingWallet.cliff() + 365 days);
-    _assertBalances(12_480_000 ether);
+  function test_VestAndUnlock_Cliff() public {
+    // Just at the cliff date
+    uint256 _timestamp = VESTING_START_DATE + 365 days;
+    _warpAndWithdraw(_timestamp);
+    _assertBalances(1_920_000 ether);
+    assertApproxEqAbs(
+      _nextToken.balanceOf(address(_connextVestingWallet)), 6_240_000 ether - 1_920_000 ether, MAX_DELTA
+    );
+  }
 
+  function test_VestAndUnlock_1MonthAfterCliff() public {
+    // 1 month after the cliff
+    uint256 _timestamp = VESTING_START_DATE + 365 days + 30 days;
+    _warpAndWithdraw(_timestamp);
+    _assertBalances(3_840_000 ether); // 1_920_000 * 2
+    assertApproxEqAbs(
+      _nextToken.balanceOf(address(_connextVestingWallet)), 6_752_876 ether - 3_840_000 ether, MAX_DELTA
+    );
+  }
+
+  function test_VestAndUnlock_1YearAfterCliff() public {
     // After the unlocking period has ended
-    _warpAndWithdraw(_connextVestingWallet.cliff() + 365 days * 3 + 10 days);
-    _assertBalances(24_960_000 ether);
+    uint256 _timestamp = VESTING_START_DATE + 365 days + 365 days;
+    _warpAndWithdraw(_timestamp);
+    _assertBalances(12_480_000 ether); // half of the total
+    assertApproxEqAbs(
+      _nextToken.balanceOf(address(_connextVestingWallet)), 24_960_000 ether - 12_480_000 ether, MAX_DELTA
+    );
   }
 
   /**
