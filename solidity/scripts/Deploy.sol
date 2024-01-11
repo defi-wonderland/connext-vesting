@@ -15,22 +15,22 @@ import {Script, console} from 'forge-std/Script.sol';
  *        test and run it. Use MM_DD_YYYY format for dates, use precise dates.
  */
 contract Deploy is Script {
-  ConnextVestingWallet public connextVestingWallet;
+  ConnextVestingWallet internal _connextVestingWallet;
 
-  uint256 public constant TOTAL_AMOUNT = 24_960_000 ether;
-  address public constant OWNER = 0x74fEa3FB0eD030e9228026E7F413D66186d3D107;
+  uint256 internal constant _TOTAL_AMOUNT = 24_960_000 ether;
+  address internal constant _OWNER = 0x74fEa3FB0eD030e9228026E7F413D66186d3D107;
 
   function run() public {
     address deployer = vm.rememberKey(vm.envUint('DEPLOYER_PRIVATE_KEY'));
 
-    require(TOTAL_AMOUNT > 0, 'TOTAL_AMOUNT');
-    require(OWNER != address(0), 'OWNER');
+    require(_TOTAL_AMOUNT > 0, 'TOTAL_AMOUNT');
+    require(_OWNER != address(0), 'OWNER');
 
     vm.startBroadcast(deployer);
-    connextVestingWallet = new ConnextVestingWallet(OWNER, TOTAL_AMOUNT);
+    _connextVestingWallet = new ConnextVestingWallet(_OWNER, _TOTAL_AMOUNT);
     vm.stopBroadcast();
 
-    require(connextVestingWallet.owner() == OWNER, 'owner');
-    require(connextVestingWallet.TOTAL_AMOUNT() == TOTAL_AMOUNT, 'TOTAL_AMOUNT');
+    require(_connextVestingWallet.owner() == _OWNER, 'owner');
+    require(_connextVestingWallet.TOTAL_AMOUNT() == _TOTAL_AMOUNT, 'TOTAL_AMOUNT');
   }
 }

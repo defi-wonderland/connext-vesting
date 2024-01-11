@@ -11,6 +11,9 @@ import {IntegrationBase} from 'test/integration/IntegrationBase.sol';
  * TODO: Make this tests more generic and clear
  */
 contract IntegrationConnextVestingWallet is IntegrationBase {
+  uint64 public constant YEAR = 365 days;
+  uint64 public constant MONTH = 365 days / 12;
+
   address public receiver = makeAddr('receiver');
 
   address internal _connextVestingWalletAddress;
@@ -20,6 +23,8 @@ contract IntegrationConnextVestingWallet is IntegrationBase {
   function setUp() public override {
     super.setUp();
 
+    // set total amount as 13 ether
+    _connextVestingWallet = new ConnextVestingWallet(owner, 13 ether);
     _connextVestingWalletAddress = address(_connextVestingWallet);
     _connextTokenLaunch = uint64(_connextVestingWallet.NEXT_TOKEN_LAUNCH());
     _firstMilestoneTimestamp = uint64(_connextVestingWallet.cliff());
@@ -30,7 +35,7 @@ contract IntegrationConnextVestingWallet is IntegrationBase {
    */
   function test_Constructor() public {
     assertEq(Ownable2Step(_connextVestingWalletAddress).owner(), owner);
-    assertEq(_connextVestingWallet.TOTAL_AMOUNT(), TOTAL_AMOUNT);
+    assertEq(_connextVestingWallet.TOTAL_AMOUNT(), 13 ether);
   }
 
   /**
@@ -47,25 +52,18 @@ contract IntegrationConnextVestingWallet is IntegrationBase {
     assertEq(_connextVestingWallet.vestedAmount(NEXT_TOKEN_ADDRESS, _connextTokenLaunch), 0);
     assertEq(_connextVestingWallet.vestedAmount(NEXT_TOKEN_ADDRESS, _firstMilestoneTimestamp - 1), 0);
 
-    assertEq(_connextVestingWallet.vestedAmount(NEXT_TOKEN_ADDRESS, _firstMilestoneTimestamp), 1_920_000 ether);
+    assertEq(_connextVestingWallet.vestedAmount(NEXT_TOKEN_ADDRESS, _firstMilestoneTimestamp), 1 ether);
 
     assertApproxEqAbs(
-      _connextVestingWallet.vestedAmount(NEXT_TOKEN_ADDRESS, _firstMilestoneTimestamp + 10 days),
-      2_551_232 ether,
-      MAX_DELTA
-    );
-    assertApproxEqAbs(
-      _connextVestingWallet.vestedAmount(NEXT_TOKEN_ADDRESS, _firstMilestoneTimestamp + 100 days),
-      8_232_328 ether,
-      MAX_DELTA
+      _connextVestingWallet.vestedAmount(NEXT_TOKEN_ADDRESS, _firstMilestoneTimestamp + MONTH), 2 ether, MAX_DELTA
     );
 
-    assertEq(
-      _connextVestingWallet.vestedAmount(NEXT_TOKEN_ADDRESS, _firstMilestoneTimestamp + 365 days), 24_960_000 ether
+    assertApproxEqAbs(
+      _connextVestingWallet.vestedAmount(NEXT_TOKEN_ADDRESS, _firstMilestoneTimestamp + MONTH * 2), 3 ether, MAX_DELTA
     );
-    assertEq(
-      _connextVestingWallet.vestedAmount(NEXT_TOKEN_ADDRESS, _firstMilestoneTimestamp + 365 days + 10 days),
-      24_960_000 ether
+
+    assertApproxEqAbs(
+      _connextVestingWallet.vestedAmount(NEXT_TOKEN_ADDRESS, _firstMilestoneTimestamp + YEAR), 13 ether, MAX_DELTA
     );
   }
 
@@ -74,37 +72,31 @@ contract IntegrationConnextVestingWallet is IntegrationBase {
    * It should take into account already withdrawn tokens.
    */
   function test_WithdrawableAmount() public {
-    deal(NEXT_TOKEN_ADDRESS, _connextVestingWalletAddress, 25_000_000 ether);
+    deal(NEXT_TOKEN_ADDRESS, _connextVestingWalletAddress, 15 ether);
 
     assertEq(_connextVestingWallet.releasable(NEXT_TOKEN_ADDRESS), 0);
 
-    vm.warp(_connextTokenLaunch + 364 days);
+    vm.warp(_connextTokenLaunch + YEAR - 1);
     assertEq(_connextVestingWallet.releasable(NEXT_TOKEN_ADDRESS), 0);
 
     vm.warp(_firstMilestoneTimestamp);
-    assertEq(_connextVestingWallet.releasable(NEXT_TOKEN_ADDRESS), 1_920_000 ether);
+    assertEq(_connextVestingWallet.releasable(NEXT_TOKEN_ADDRESS), 1 ether);
 
-    vm.warp(_firstMilestoneTimestamp + 10 days);
-    assertApproxEqAbs(_connextVestingWallet.releasable(NEXT_TOKEN_ADDRESS), 2_551_232 ether, MAX_DELTA);
+    vm.warp(_firstMilestoneTimestamp + MONTH);
+    assertApproxEqAbs(_connextVestingWallet.releasable(NEXT_TOKEN_ADDRESS), 2 ether, MAX_DELTA);
 
     _connextVestingWallet.release(NEXT_TOKEN_ADDRESS);
     assertEq(_connextVestingWallet.releasable(NEXT_TOKEN_ADDRESS), 0 ether);
 
-    // 2,551,232 tokens have been withdrawn
-    vm.warp(_firstMilestoneTimestamp + 100 days);
-    assertApproxEqAbs(
-      _connextVestingWallet.releasable(NEXT_TOKEN_ADDRESS), 8_232_328 ether - 2_551_232 ether, MAX_DELTA
-    );
+    // 2 ether have been withdrawn
+    vm.warp(_firstMilestoneTimestamp + MONTH * 2);
+    assertApproxEqAbs(_connextVestingWallet.releasable(NEXT_TOKEN_ADDRESS), 3 ether - 2 ether, MAX_DELTA);
 
-    vm.warp(_firstMilestoneTimestamp + 365 days);
-    assertApproxEqAbs(
-      _connextVestingWallet.releasable(NEXT_TOKEN_ADDRESS), 24_960_000 ether - 2_551_232 ether, MAX_DELTA
-    );
+    vm.warp(_firstMilestoneTimestamp + YEAR);
+    assertApproxEqAbs(_connextVestingWallet.releasable(NEXT_TOKEN_ADDRESS), 13 ether - 2 ether, MAX_DELTA);
 
-    vm.warp(_firstMilestoneTimestamp + 365 days + 10 days);
-    assertApproxEqAbs(
-      _connextVestingWallet.releasable(NEXT_TOKEN_ADDRESS), 24_960_000 ether - 2_551_232 ether, MAX_DELTA
-    );
+    vm.warp(_firstMilestoneTimestamp + YEAR + 10 days);
+    assertApproxEqAbs(_connextVestingWallet.releasable(NEXT_TOKEN_ADDRESS), 13 ether - 2 ether, MAX_DELTA);
   }
 
   /**
@@ -112,20 +104,20 @@ contract IntegrationConnextVestingWallet is IntegrationBase {
    */
   function test_Withdraw() public {
     // Deal more tokens that will be locked
-    deal(NEXT_TOKEN_ADDRESS, _connextVestingWalletAddress, 2_000_000 ether);
+    deal(NEXT_TOKEN_ADDRESS, _connextVestingWalletAddress, 2 ether);
     vm.warp(_firstMilestoneTimestamp);
 
     vm.startPrank(owner);
     _connextVestingWallet.release(NEXT_TOKEN_ADDRESS);
 
     // Even though the contract has more tokens, the unlocked amount should be the same
-    assertEq(_connextVestingWallet.released(NEXT_TOKEN_ADDRESS), 1_920_000 ether);
-    assertEq(_nextToken.balanceOf(owner), 1_920_000 ether);
+    assertEq(_connextVestingWallet.released(NEXT_TOKEN_ADDRESS), 1 ether);
+    assertEq(_nextToken.balanceOf(owner), 1 ether);
 
     // Try again and expect no changes
     _connextVestingWallet.release(NEXT_TOKEN_ADDRESS);
-    assertEq(_connextVestingWallet.released(NEXT_TOKEN_ADDRESS), 1_920_000 ether);
-    assertEq(_nextToken.balanceOf(owner), 1_920_000 ether);
+    assertEq(_connextVestingWallet.released(NEXT_TOKEN_ADDRESS), 1 ether);
+    assertEq(_nextToken.balanceOf(owner), 1 ether);
 
     vm.stopPrank();
   }

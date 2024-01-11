@@ -82,8 +82,6 @@ contract ConnextVestingWallet is VestingWalletWithCliff, Ownable2Step {
    * @notice      This contract is only meant to vest NEXT tokens
    */
   function releasable(address _token) public view virtual override returns (uint256 _amount) {
-    if (_token != NEXT_TOKEN) return 0;
-
     _amount = vestedAmount(_token, uint64(block.timestamp)) - released(_token);
     uint256 _balance = IERC20(_token).balanceOf(address(this));
     _amount = _balance < _amount ? _balance : _amount;
