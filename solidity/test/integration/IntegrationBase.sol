@@ -34,12 +34,9 @@ contract IntegrationBase is Test, Constants {
 
     deal(NEXT_TOKEN_ADDRESS, payer, TOTAL_AMOUNT);
 
-    // address _llamaVestAddress = ContractDeploymentAddress.addressFrom(address(_llamaVestFactory), 0);
-    address _llamaVestAddress = 0xB93427b83573C8F27a08A909045c3e809610411a; // hardcoded from logs
-
     // approve before deployment
     vm.prank(payer);
-    _nextToken.approve(_llamaVestAddress, TOTAL_AMOUNT);
+    _nextToken.approve(address(_llamaVestFactory), TOTAL_AMOUNT);
 
     // deploy vesting contract
     vm.prank(payer);
