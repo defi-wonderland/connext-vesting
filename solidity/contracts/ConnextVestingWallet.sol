@@ -128,7 +128,7 @@ contract ConnextVestingWallet is VestingWalletWithCliff, Ownable2Step {
    * @notice      Claim tokens from Llama Vesting contract
    * @dev         This func is needed because only the recipients can claim
    */
-  function claim(address _llamaVestAddress) external onlyOwner {
+  function claim(address _llamaVestAddress) external {
     IVestingEscrowSimple(_llamaVestAddress).claim(address(this));
   }
 }

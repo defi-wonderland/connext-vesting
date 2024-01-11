@@ -11,9 +11,6 @@ import {IntegrationBase} from 'test/integration/IntegrationBase.sol';
  * TODO: Make this tests more generic and clear
  */
 contract IntegrationConnextVestingWallet is IntegrationBase {
-  uint64 public constant YEAR = 365 days;
-  uint64 public constant MONTH = 365 days / 12;
-
   address public receiver = makeAddr('receiver');
 
   address internal _connextVestingWalletAddress;
@@ -42,11 +39,11 @@ contract IntegrationConnextVestingWallet is IntegrationBase {
    * @notice The unlocked amount should be different at various points in time.
    *  At the beginning of the unlocking period: 0 tokens
    *  Just before the first milestone: 0 token
-   *  At the first milestone: 1,920,000 tokens
-   *  10 days after the first milestone: 2,551,232 tokens
-   *  100 days after the first milestone: 8,232,328 tokens
-   *  At the end of the unlocking period: 24,960,000 tokens
-   *  After the end of the unlocking period: 24,960,000 tokens
+   *  At the first milestone: 1 ether tokens
+   *  1 month after the first milestone: 2 ether tokens
+   *  2 month after the first milestone: 3 ether tokens
+   *  At the end of the unlocking period: 13 ether tokens
+   *  After the end of the unlocking period: 13 ether tokens
    */
   function test_UnlockedAtTimestamp() public {
     assertEq(_connextVestingWallet.vestedAmount(NEXT_TOKEN_ADDRESS, _connextTokenLaunch), 0);
@@ -64,6 +61,12 @@ contract IntegrationConnextVestingWallet is IntegrationBase {
 
     assertApproxEqAbs(
       _connextVestingWallet.vestedAmount(NEXT_TOKEN_ADDRESS, _firstMilestoneTimestamp + YEAR), 13 ether, MAX_DELTA
+    );
+
+    assertApproxEqAbs(
+      _connextVestingWallet.vestedAmount(NEXT_TOKEN_ADDRESS, _firstMilestoneTimestamp + YEAR + 10 days),
+      13 ether,
+      MAX_DELTA
     );
   }
 

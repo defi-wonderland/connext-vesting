@@ -19,7 +19,7 @@ contract Constants {
   address public constant LLAMA_FACTORY_ADDRESS = 0xB93427b83573C8F27a08A909045c3e809610411a;
 
   // Vesting info
-  uint64 public constant VESTING_START_DATE = 1_659_312_000; // aug 01 2022
-  uint64 public constant LAUNCH_DATE = 1_693_872_000; // sept 05 2023
+  uint64 public constant AUG_01_2022 = 1_659_312_000; // vesting start date
+  uint64 public constant SEP_05_2023 = 1_693_872_000; // launch date
   uint64 public constant VESTING_DURATION = 365 days * 4;
 }

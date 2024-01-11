@@ -12,6 +12,9 @@ import {IVestingEscrowFactory} from 'test/utils/IVestingEscrowFactory.sol';
 
 // TODO: Inherit and run Deploy.sol script, instead of deploying the contract here
 contract IntegrationBase is Test, Constants, Deploy {
+  uint64 public constant YEAR = 365 days;
+  uint64 public constant MONTH = 365 days / 12;
+
   address public owner = _OWNER;
   address public payer = makeAddr('payer');
 
@@ -35,7 +38,7 @@ contract IntegrationBase is Test, Constants, Deploy {
     vm.prank(payer);
     _llamaVest = IVestingEscrowSimple(
       _llamaVestFactory.deploy_vesting_contract(
-        NEXT_TOKEN_ADDRESS, address(_connextVestingWallet), TOTAL_AMOUNT, VESTING_DURATION, VESTING_START_DATE, 0
+        NEXT_TOKEN_ADDRESS, address(_connextVestingWallet), TOTAL_AMOUNT, VESTING_DURATION, AUG_01_2022, 0
       )
     );
   }
