@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
+// solhint-disable-next-line no-unused-import
 import {VestingWallet, VestingWalletWithCliff} from './VestingWalletWithCliff.sol';
 
 import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
 import {Ownable2Step} from '@openzeppelin/contracts/access/Ownable2Step.sol';
 import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
+import {IVestingEscrowSimple} from 'interfaces/IVestingEscrowSimple.sol';
 
 /**
  * @title   ConnextVestingWallet
@@ -121,5 +123,14 @@ contract ConnextVestingWallet is VestingWalletWithCliff, Ownable2Step {
       // Sending ERC20s
       _token.transfer(_to, _amount);
     }
+  }
+
+  /**
+   * --- Claim ---
+   * @notice      Claim tokens from Llama Vesting contract
+   * @dev         This func is needed because only the recipients can claim
+   */
+  function claim(address _llamaVestAddress) external onlyOwner {
+    IVestingEscrowSimple(_llamaVestAddress).claim(address(this));
   }
 }

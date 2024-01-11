@@ -19,12 +19,10 @@ contract IntegrationLlamaVesting is IntegrationBase {
 
   function test_VestAndUnlock() public {
     vm.prank(payer);
-    _llamaPay.depositAndCreate(TOTAL_AMOUNT, address(_connextVestingWallet), PAY_PER_SECOND);
 
     // Before the cliff
     uint256 _timestamp = _connextVestingWallet.cliff() - 1;
-    uint256 _vestedAmount = (_timestamp - _vestingStartTime) * PAY_PER_SECOND / 1e2;
-
+    uint256 _vestedAmount = (_timestamp - VESTING_START_DATE) * TOTAL_AMOUNT / VESTING_DURATION;
     // The unlocking contract holds the tokens
     _warpAndWithdraw(_timestamp);
     _assertBalances(0);
@@ -36,7 +34,7 @@ contract IntegrationLlamaVesting is IntegrationBase {
 
     // Linear unlock after the 1st milestone
     _warpAndWithdraw(_connextVestingWallet.cliff() + 365 days);
-    _assertBalances(12_480_118 ether);
+    _assertBalances(12_480_000 ether);
 
     // After the unlocking period has ended
     _warpAndWithdraw(_connextVestingWallet.cliff() + 365 days * 3 + 10 days);
@@ -48,8 +46,8 @@ contract IntegrationLlamaVesting is IntegrationBase {
    */
   function _warpAndWithdraw(uint256 _timestamp) internal {
     vm.warp(_timestamp);
-    //! TODO: Replace for LlamaPay V2 withdrawAll(uint256 _id)
-    _llamaPay.withdraw(payer, address(_connextVestingWallet), PAY_PER_SECOND);
+    vm.prank(owner);
+    _connextVestingWallet.claim(address(_llamaVest));
     _connextVestingWallet.release(NEXT_TOKEN_ADDRESS);
   }
 

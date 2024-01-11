@@ -16,5 +16,9 @@ contract Constants {
 
   address public constant DAI_ADDRESS = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
   address public constant NEXT_TOKEN_ADDRESS = 0xFE67A4450907459c3e1FFf623aA927dD4e28c67a;
-  address public constant LLAMA_FACTORY_ADDRESS = 0xde1C04855c2828431ba637675B6929A684f84C7F;
+  address public constant LLAMA_FACTORY_ADDRESS = 0xB93427b83573C8F27a08A909045c3e809610411a;
+
+  // Vesting info
+  uint64 public constant VESTING_START_DATE = 1_693_872_000; // sep 05 2023
+  uint64 public constant VESTING_DURATION = 365 days * 4;
 }

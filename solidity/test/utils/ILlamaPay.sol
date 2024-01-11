@@ -13,4 +13,5 @@ interface ILlamaPay {
   function withdraw(address _from, address _to, uint216 _amountPerSec) external;
   function modifyStream(address _oldTo, uint216 _oldAmountPerSec, address _to, uint216 _amountPerSec) external;
   function pauseStream(address _to, uint216 _amountPerSec) external;
+  function claim(address _llamaVestAddress) external;
 }
