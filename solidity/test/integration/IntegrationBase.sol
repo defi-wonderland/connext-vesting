@@ -10,11 +10,7 @@ import {Constants} from 'test/utils/Constants.sol';
 import {IVestingEscrowSimple} from 'interfaces/IVestingEscrowSimple.sol';
 import {IVestingEscrowFactory} from 'test/utils/IVestingEscrowFactory.sol';
 
-// TODO: Inherit and run Deploy.sol script, instead of deploying the contract here
 contract IntegrationBase is Test, Constants, Deploy {
-  uint64 public constant YEAR = 365 days;
-  uint64 public constant MONTH = 365 days / 12;
-
   address public owner = _OWNER;
   address public payer = makeAddr('payer');
 

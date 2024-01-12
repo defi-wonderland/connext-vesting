@@ -3,12 +3,6 @@ pragma solidity 0.8.20;
 
 import {IntegrationBase} from 'test/integration/IntegrationBase.sol';
 
-/**
- * TODO: Add generic test to show the behaviour of vesting contract + llamaPay stream
- *       At the beginning of the unlocking period: 0 tokens
- *       Then limited by vesting contract
- *       Then limited by llamaPay (after vesting period has ended)
- */
 contract IntegrationLlamaVesting is IntegrationBase {
   uint256 internal _vestingStartTime;
 

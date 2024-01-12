@@ -6,14 +6,6 @@ import {ConnextVestingWallet} from 'contracts/ConnextVestingWallet.sol';
 import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import {Script, console} from 'forge-std/Script.sol';
 
-/**
- * TODO:  Create a test that inherits and runs this script, and compare the results
- *        with specific dates and amounts, using Wondeland's total amount and schedule.
- *        Current IntegrationTests should remain generic, only this test will have
- *        specific dates and amounts. In that way, for someone that forks the repo,
- *        (and changes TOTAL_AMOUNT) will have to specify the expected results in the
- *        test and run it. Use MM_DD_YYYY format for dates, use precise dates.
- */
 contract Deploy is Script {
   ConnextVestingWallet internal _connextVestingWallet;
 
