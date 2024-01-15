@@ -6,7 +6,7 @@ contract Constants {
   uint256 public constant MAX_DELTA = 1 ether;
 
   // The block to use for integration tests
-  uint256 public constant FORK_BLOCK = 18_927_563;
+  uint256 public constant FORK_BLOCK = 19_012_745;
 
   // The total amount of tokens to be vested
   uint256 public constant TOTAL_AMOUNT = 24_960_000 ether;
