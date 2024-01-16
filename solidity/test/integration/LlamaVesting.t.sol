@@ -8,33 +8,45 @@ contract IntegrationLlamaVesting is IntegrationBase {
 
   function setUp() public override {
     super.setUp();
-    _vestingStartTime = block.timestamp;
+    _vestingStartTime = _connextVestingWallet.start();
   }
 
   function test_VestAndUnlock() public {
-    vm.prank(payer);
-    _llamaPay.depositAndCreate(TOTAL_AMOUNT, address(_unlock), PAY_PER_SECOND);
-
-    // Before the 1st milestone
-    uint256 _timestamp = _unlock.FIRST_MILESTONE_TIMESTAMP() - 1;
-    uint256 _vestedAmount = (_timestamp - _vestingStartTime) * PAY_PER_SECOND / 1e2;
-
-    // The unlocking contract holds the tokens
+    // At launch date
+    uint256 _timestamp = SEP_05_2023;
     _warpAndWithdraw(_timestamp);
-    _assertBalances(0);
-    assertEq(_nextToken.balanceOf(address(_unlock)), _vestedAmount);
+    _assertWalletBalance(6_838_356 ether);
+    _assertOwnerBalance(0 ether);
 
-    // After the 1st milestone
-    _warpAndWithdraw(_unlock.FIRST_MILESTONE_TIMESTAMP() + 10 days);
-    _assertBalances(2_551_232 ether);
+    // Launch date + 1 year - 1 second
+    _timestamp = SEP_05_2023 + YEAR - 1;
+    _warpAndWithdraw(_timestamp);
+    _assertWalletBalance(13_078_355 ether);
+    _assertOwnerBalance(0 ether);
 
-    // Linear unlock after the 1st milestone
-    _warpAndWithdraw(_unlock.FIRST_MILESTONE_TIMESTAMP() + 365 days);
-    _assertBalances(12_480_118 ether);
+    // Launch date + 1 year
+    _timestamp = SEP_05_2023 + YEAR;
+    _warpAndWithdraw(_timestamp);
+    _assertWalletBalance(11_158_356 ether);
+    _assertOwnerBalance(1_920_000 ether);
 
-    // After the unlocking period has ended
-    _warpAndWithdraw(_unlock.FIRST_MILESTONE_TIMESTAMP() + 365 days * 3 + 10 days);
-    _assertBalances(24_960_000 ether);
+    // Launch date + 1 year + 1 month
+    _timestamp = SEP_05_2023 + YEAR + MONTH;
+    _warpAndWithdraw(_timestamp);
+    _assertWalletBalance(9_758_356 ether);
+    _assertOwnerBalance(3_840_000 ether);
+
+    // Launch date + 2 years
+    _timestamp = SEP_05_2023 + 2 * YEAR;
+    _warpAndWithdraw(_timestamp);
+    _assertWalletBalance(0 ether);
+    _assertOwnerBalance(19_318_356 ether);
+
+    // Vesting start date + 4 years
+    _timestamp = AUG_01_2022 + 4 * YEAR;
+    _warpAndWithdraw(_timestamp);
+    _assertWalletBalance(0 ether);
+    _assertOwnerBalance(24_960_000 ether);
   }
 
   /**
@@ -42,17 +54,22 @@ contract IntegrationLlamaVesting is IntegrationBase {
    */
   function _warpAndWithdraw(uint256 _timestamp) internal {
     vm.warp(_timestamp);
-    _llamaPay.withdraw(payer, address(_unlock), PAY_PER_SECOND);
-
-    vm.prank(owner);
-    _unlock.withdraw(owner);
+    _connextVestingWallet.claim(address(_llamaVest));
+    _connextVestingWallet.release(NEXT_TOKEN_ADDRESS);
   }
 
   /**
    * @notice Each withdrawal should equally increase the withdrawn amount and the owner's balance
    */
-  function _assertBalances(uint256 _balance) internal {
-    assertApproxEqAbs(_unlock.withdrawnAmount(), _balance, MAX_DELTA);
+  function _assertOwnerBalance(uint256 _balance) internal {
+    assertApproxEqAbs(_connextVestingWallet.released(NEXT_TOKEN_ADDRESS), _balance, MAX_DELTA);
     assertApproxEqAbs(_nextToken.balanceOf(owner), _balance, MAX_DELTA);
+  }
+
+  /**
+   * @notice Assert the connext vesting wallet balance is equal to the given amount
+   */
+  function _assertWalletBalance(uint256 _balance) internal {
+    assertApproxEqAbs(_nextToken.balanceOf(address(_connextVestingWallet)), _balance, MAX_DELTA);
   }
 }

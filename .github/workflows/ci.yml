@@ -8,6 +8,7 @@ concurrency:
 
 env:
   MAINNET_RPC: ${{ secrets.MAINNET_RPC }}
+  DEPLOYER_PRIVATE_KEY: '0x115241e9f8d2246550d50641f38ee4170b937f25dfb983f7e34960f9670fc41d'
 
 jobs:
   integration-tests:
