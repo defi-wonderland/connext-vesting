@@ -52,8 +52,10 @@ contract ConnextVestingWallet is Ownable2Step, IConnextVestingWallet {
   /// @inheritdoc IConnextVestingWallet
   uint256 public released;
 
-  /// @param _owner  The address of the beneficiary
-  /// @param _totalAmount  The total amount of tokens to be unlocked
+  /**
+   * @param _owner The address of the beneficiary
+   * @param _totalAmount The total amount of tokens to be unlocked
+   */
   constructor(address _owner, uint256 _totalAmount) Ownable(_owner) {
     CLIFF = VESTING_START_DATE + VESTING_CLIFF_DURATION;
     TOTAL_AMOUNT = _totalAmount;
