@@ -48,7 +48,7 @@ contract UnitConnextVestingWallet is Test, Constants {
     _connextVestingWallet = new ConnextVestingWallet(owner, 13 ether);
     _connextVestingWalletAddress = address(_connextVestingWallet);
     _connextTokenLaunch = uint64(_connextVestingWallet.NEXT_TOKEN_LAUNCH());
-    _firstMilestoneTimestamp = uint64(_connextVestingWallet.CLIFF());
+    _firstMilestoneTimestamp = uint64(_connextVestingWallet.VESTING_CLIFF());
   }
 
   /**

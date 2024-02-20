@@ -35,14 +35,12 @@ interface IConnextVestingWallet {
 
   /**
    * @notice NEXT token address
-   * @dev Mainnet address
    * @return _nextToken The address of the NEXT token
    */
   function NEXT_TOKEN() external view returns (address _nextToken);
 
   /**
    * @notice Token launch date
-   * @dev Equals to Sept 5th 2023
    * @return _timestamp The timestamp of the token launch
    */
   function NEXT_TOKEN_LAUNCH() external view returns (uint64 _timestamp);
@@ -67,31 +65,39 @@ interface IConnextVestingWallet {
 
   /**
    * @notice Vesting cliff duration
-   * @dev 1 month cliff
    * @return _timedelta The timedelta of the cliff duration
    */
   function VESTING_CLIFF_DURATION() external view returns (uint64 _timedelta);
 
   /**
    * @notice Vesting duration including one month of cliff
-   * @dev 13 months duration
    * @return _timedelta The timedelta of the vesting duration
    */
   function VESTING_DURATION() external view returns (uint64 _timedelta);
 
   /**
    * @notice Vesting warmup time
-   * @dev 11 months offset
    * @return _timedelta The timedelta of the warmup time
    */
   function VESTING_OFFSET() external view returns (uint64 _timedelta);
 
   /**
    * @notice Vesting start date
-   * @dev Sept 5th 2024 - 1 month
    * @return _timestamp The timestamp of the start date
    */
   function VESTING_START_DATE() external view returns (uint64 _timestamp);
+
+  /**
+   * @notice Vesting cliff date
+   * @return _timestamp The timestamp of the cliff date
+   */
+  function VESTING_CLIFF() external view returns (uint64 _timestamp);
+
+  /**
+   * @notice Vesting start date
+   * @return _timestamp The timestamp of the start date
+   */
+  function VESTING_START() external view returns (uint64 _timestamp);
 
   /*///////////////////////////////////////////////////////////////
                              STORAGE
@@ -99,17 +105,9 @@ interface IConnextVestingWallet {
 
   /**
    * @notice Total amount of tokens to be vested
-   * @dev Set into constructor
    * @return _amount The total amount of tokens
    */
   function TOTAL_AMOUNT() external view returns (uint256 _amount);
-
-  /**
-   * @notice The cliff timestamp
-   * @dev Set into constructor
-   * @return _timestamp The timestamp of the cliff
-   */
-  function CLIFF() external view returns (uint64 _timestamp);
 
   /**
    * @notice The amount of NEXT tokens that are already released
@@ -123,14 +121,12 @@ interface IConnextVestingWallet {
 
   /**
    * @notice Claim tokens from Llama Vesting contract
-   * @dev This func is needed because only the recipients can claim
    * @param _llamaVestAddress  The address of the Llama Vesting contract
    */
   function claim(address _llamaVestAddress) external;
 
   /**
    * @notice Collect dust from the contract
-   * @dev This contract allows to withdraw any token, with the exception of unlocked NEXT tokens
    * @param _token  The address of the token to withdraw
    * @param _amount The amount of tokens to withdraw
    * @param _to     The address to send the tokens to

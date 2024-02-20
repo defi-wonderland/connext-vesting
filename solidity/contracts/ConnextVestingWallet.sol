@@ -26,28 +26,31 @@ contract ConnextVestingWallet is Ownable2Step, IConnextVestingWallet {
   uint64 public constant SEPT_05_2023 = 1_693_872_000;
 
   /// @inheritdoc IConnextVestingWallet
-  uint64 public constant NEXT_TOKEN_LAUNCH = SEPT_05_2023;
+  uint64 public constant NEXT_TOKEN_LAUNCH = SEPT_05_2023; // Equals to Sept 5th 2023
 
   /// @inheritdoc IConnextVestingWallet
-  address public constant NEXT_TOKEN = 0xFE67A4450907459c3e1FFf623aA927dD4e28c67a;
+  address public constant NEXT_TOKEN = 0xFE67A4450907459c3e1FFf623aA927dD4e28c67a; // Mainnet address
 
   /// @inheritdoc IConnextVestingWallet
-  uint64 public constant VESTING_DURATION = ONE_YEAR + ONE_MONTH;
+  uint64 public constant VESTING_DURATION = ONE_YEAR + ONE_MONTH; // 13 months duration
 
   /// @inheritdoc IConnextVestingWallet
-  uint64 public constant VESTING_CLIFF_DURATION = ONE_MONTH;
+  uint64 public constant VESTING_CLIFF_DURATION = ONE_MONTH; // 1 month cliff
 
   /// @inheritdoc IConnextVestingWallet
-  uint64 public constant VESTING_OFFSET = ONE_YEAR - ONE_MONTH;
+  uint64 public constant VESTING_OFFSET = ONE_YEAR - ONE_MONTH; // 11 months offset
 
   /// @inheritdoc IConnextVestingWallet
-  uint64 public constant VESTING_START_DATE = NEXT_TOKEN_LAUNCH + VESTING_OFFSET;
+  uint64 public constant VESTING_START_DATE = NEXT_TOKEN_LAUNCH + VESTING_OFFSET; // Sept 5th 2024 - 1 month
 
   /// @inheritdoc IConnextVestingWallet
-  uint256 public immutable TOTAL_AMOUNT;
+  uint64 public constant VESTING_CLIFF = VESTING_START_DATE + VESTING_CLIFF_DURATION;
 
   /// @inheritdoc IConnextVestingWallet
-  uint64 public immutable CLIFF;
+  uint64 public constant VESTING_START = VESTING_START_DATE + VESTING_DURATION;
+
+  /// @inheritdoc IConnextVestingWallet
+  uint256 public immutable TOTAL_AMOUNT; // Set into constructor
 
   /// @inheritdoc IConnextVestingWallet
   uint256 public released;
@@ -57,7 +60,6 @@ contract ConnextVestingWallet is Ownable2Step, IConnextVestingWallet {
    * @param _totalAmount The total amount of tokens to be unlocked
    */
   constructor(address _owner, uint256 _totalAmount) Ownable(_owner) {
-    CLIFF = VESTING_START_DATE + VESTING_CLIFF_DURATION;
     TOTAL_AMOUNT = _totalAmount;
   }
 
@@ -70,9 +72,9 @@ contract ConnextVestingWallet is Ownable2Step, IConnextVestingWallet {
 
   /// @inheritdoc IConnextVestingWallet
   function vestedAmount(uint64 _timestamp) public view returns (uint256 _amount) {
-    if (_timestamp < CLIFF) {
+    if (_timestamp < VESTING_CLIFF) {
       return 0;
-    } else if (_timestamp >= VESTING_START_DATE + VESTING_DURATION) {
+    } else if (_timestamp >= VESTING_START) {
       return TOTAL_AMOUNT;
     } else {
       return (TOTAL_AMOUNT * (_timestamp - VESTING_START_DATE)) / VESTING_DURATION;
@@ -94,7 +96,10 @@ contract ConnextVestingWallet is Ownable2Step, IConnextVestingWallet {
     _amount = _balance < _amount ? _balance : _amount;
   }
 
-  /// @inheritdoc IConnextVestingWallet
+  /**
+   * @inheritdoc IConnextVestingWallet
+   * @dev This contract allows to withdraw any token, with the exception of unlocked NEXT tokens
+   */
   function sendDust(IERC20 _token, uint256 _amount, address _to) external onlyOwner {
     if (_to == address(0)) revert ZeroAddress();
 
@@ -109,7 +114,10 @@ contract ConnextVestingWallet is Ownable2Step, IConnextVestingWallet {
     }
   }
 
-  /// @inheritdoc IConnextVestingWallet
+  /**
+   * @inheritdoc IConnextVestingWallet
+   * @dev This func is needed because only the recipients can claim
+   */
   function claim(address _llamaVestAddress) external {
     IVestingEscrowSimple(_llamaVestAddress).claim(address(this));
   }
