@@ -4,7 +4,7 @@ pragma solidity 0.8.20;
 import {Ownable, Ownable2Step} from '@openzeppelin/contracts/access/Ownable2Step.sol';
 import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 
-import {ConnextVestingWallet} from 'contracts/ConnextVestingWallet.sol';
+import {ConnextVestingWallet, IConnextVestingWallet} from 'contracts/ConnextVestingWallet.sol';
 import {Constants} from 'test/utils/Constants.sol';
 
 import {IVestingEscrowSimple} from 'interfaces/IVestingEscrowSimple.sol';
@@ -48,7 +48,7 @@ contract UnitConnextVestingWallet is Test, Constants {
     _connextVestingWallet = new ConnextVestingWallet(owner, 13 ether);
     _connextVestingWalletAddress = address(_connextVestingWallet);
     _connextTokenLaunch = uint64(_connextVestingWallet.NEXT_TOKEN_LAUNCH());
-    _firstMilestoneTimestamp = uint64(_connextVestingWallet.cliff());
+    _firstMilestoneTimestamp = uint64(_connextVestingWallet.CLIFF());
   }
 
   /**
@@ -202,7 +202,7 @@ contract UnitConnextVestingWallet is Test, Constants {
 
     // Can't collect the vesting token
     assertEq(_nextToken.balanceOf(_randomAddress), 0);
-    vm.expectRevert(abi.encodeWithSelector(ConnextVestingWallet.NotAllowed.selector));
+    vm.expectRevert(abi.encodeWithSelector(IConnextVestingWallet.NotAllowed.selector));
     vm.prank(owner);
     _connextVestingWallet.sendDust(_nextToken, _dustAmount, _randomAddress);
     assertEq(_nextToken.balanceOf(_randomAddress), 0);
