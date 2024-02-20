@@ -71,7 +71,7 @@ contract ConnextVestingWallet is Ownable2Step, IConnextVestingWallet {
   }
 
   /// @inheritdoc IConnextVestingWallet
-  function release() public virtual {
+  function release() public {
     uint256 _amount = releasable();
     released += _amount;
     IERC20(NEXT_TOKEN).transfer(owner(), _amount);
