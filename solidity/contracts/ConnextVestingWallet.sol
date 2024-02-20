@@ -59,6 +59,13 @@ contract ConnextVestingWallet is Ownable2Step, IConnextVestingWallet {
     TOTAL_AMOUNT = _totalAmount;
   }
 
+  /**
+   * NOTE:  The equivalent vesting schedule has a 13 months duration, with a 1 month cliff,
+   *        offsetted to start from `Sept 5th 2024 - 1 month`: At Sept 5th 2024 the cliff
+   *        is triggered unlocking 1/13 of the tokens, and then 1/13 of the tokens will
+   *        be linearly unlocked every month after that.
+   */
+
   /// @inheritdoc IConnextVestingWallet
   function vestedAmount(uint64 _timestamp) public view returns (uint256 _amount) {
     if (_timestamp < CLIFF) {
