@@ -9,8 +9,8 @@ interface IConnextVestingWallet {
   //////////////////////////////////////////////////////////////*/
 
   /**
-   * @notice NEXT tokens released
-   * @param _token  The address of the NEXT token
+   * @notice Emits when the owner releases tokens
+   * @param _token  The address of the released ERC20 token
    * @param _amount The amount of tokens released
    */
   event ERC20Released(address indexed _token, uint256 _amount);
@@ -61,9 +61,9 @@ interface IConnextVestingWallet {
 
   /**
    * @notice Sept 5th 2023 in seconds
-   * @return _timedelta The timestamp of Sept 5th 2023
+   * @return _timestamp The timestamp of Sept 5th 2023
    */
-  function SEPT_05_2023() external view returns (uint64 _timedelta);
+  function SEPT_05_2023() external view returns (uint64 _timestamp);
 
   /**
    * @notice Vesting cliff duration
