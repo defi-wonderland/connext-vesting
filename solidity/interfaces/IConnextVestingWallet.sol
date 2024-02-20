@@ -5,6 +5,17 @@ import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 
 interface IConnextVestingWallet {
   /*///////////////////////////////////////////////////////////////
+                             EVENTS
+  //////////////////////////////////////////////////////////////*/
+
+  /**
+   * @notice NEXT tokens released
+   * @param _token  The address of the NEXT token
+   * @param _amount The amount of tokens released
+   */
+  event ERC20Released(address indexed _token, uint256 _amount);
+
+  /*///////////////////////////////////////////////////////////////
                              ERRRORS
   //////////////////////////////////////////////////////////////*/
 
