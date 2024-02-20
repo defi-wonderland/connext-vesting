@@ -4,13 +4,6 @@ pragma solidity 0.8.20;
 import {IntegrationBase} from 'test/integration/IntegrationBase.sol';
 
 contract IntegrationLlamaVesting is IntegrationBase {
-  uint256 internal _vestingStartTime;
-
-  function setUp() public override {
-    super.setUp();
-    _vestingStartTime = _connextVestingWallet.VESTING_START_DATE() + _connextVestingWallet.VESTING_DURATION();
-  }
-
   function test_VestAndUnlock() public {
     // At launch date
     uint256 _timestamp = SEP_05_2023;
