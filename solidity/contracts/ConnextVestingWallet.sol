@@ -3,7 +3,6 @@ pragma solidity 0.8.20;
 
 import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
 import {Ownable2Step} from '@openzeppelin/contracts/access/Ownable2Step.sol';
-import {VestingWallet} from '@openzeppelin/contracts/finance/VestingWallet.sol';
 import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 
 import {IConnextVestingWallet} from 'interfaces/IConnextVestingWallet.sol';
@@ -16,7 +15,7 @@ import {IVestingEscrowSimple} from 'interfaces/IVestingEscrowSimple.sol';
  *          and 1/13 unlocks every month thereafter for 12 months. All tokens are unlocked after 24 months.
  *          https://forum.connext.network/t/rfc-partnership-token-agreements/938
  */
-contract ConnextVestingWallet is VestingWallet, Ownable2Step, IConnextVestingWallet {
+contract ConnextVestingWallet is Ownable2Step, IConnextVestingWallet {
   /// @inheritdoc IConnextVestingWallet
   uint64 public constant ONE_YEAR = 365 days;
 
@@ -50,59 +49,46 @@ contract ConnextVestingWallet is VestingWallet, Ownable2Step, IConnextVestingWal
   /// @inheritdoc IConnextVestingWallet
   uint64 public immutable CLIFF;
 
-  /// @param _beneficiary  The address of the beneficiary
+  /// @inheritdoc IConnextVestingWallet
+  uint256 public released;
+
+  /// @param _owner  The address of the beneficiary
   /// @param _totalAmount  The total amount of tokens to be unlocked
-  constructor(
-    address _beneficiary,
-    uint256 _totalAmount
-  ) VestingWallet(_beneficiary, VESTING_START_DATE, VESTING_DURATION) {
+  constructor(address _owner, uint256 _totalAmount) Ownable(_owner) {
     CLIFF = VESTING_START_DATE + VESTING_CLIFF_DURATION;
     TOTAL_AMOUNT = _totalAmount;
   }
 
-  /// This contract is only meant to unlock NEXT tokens
-  /// @inheritdoc VestingWallet
-  function vestedAmount(uint64) public view virtual override returns (uint256 _amount) {
-    return 0;
-  }
-
-  /// We use custom vesting logic with cliffs and linear unlocking
-  /// @inheritdoc VestingWallet
-  function vestedAmount(address _token, uint64 _timestamp) public view virtual override returns (uint256 _amount) {
-    if (_token != NEXT_TOKEN || _timestamp < CLIFF) {
+  /// @inheritdoc IConnextVestingWallet
+  function vestedAmount(uint64 _timestamp) public view returns (uint256 _amount) {
+    if (_timestamp < CLIFF) {
       return 0;
-    } else if (_timestamp >= end()) {
+    } else if (_timestamp >= VESTING_START_DATE + VESTING_DURATION) {
       return TOTAL_AMOUNT;
     } else {
-      return (TOTAL_AMOUNT * (_timestamp - start())) / duration();
+      return (TOTAL_AMOUNT * (_timestamp - VESTING_START_DATE)) / VESTING_DURATION;
     }
   }
 
-  /// This contract is only meant to unlock NEXT tokens
-  /// @inheritdoc VestingWallet
-  function releasable(address _token) public view virtual override returns (uint256 _amount) {
-    _amount = vestedAmount(_token, uint64(block.timestamp)) - released(_token);
-    uint256 _balance = IERC20(_token).balanceOf(address(this));
+  /// @inheritdoc IConnextVestingWallet
+  function release() public virtual {
+    uint256 _amount = releasable();
+    released += _amount;
+    IERC20(NEXT_TOKEN).transfer(owner(), _amount);
+  }
+
+  /// @inheritdoc IConnextVestingWallet
+  function releasable() public view returns (uint256 _amount) {
+    _amount = vestedAmount(uint64(block.timestamp)) - released;
+    uint256 _balance = IERC20(NEXT_TOKEN).balanceOf(address(this));
     _amount = _balance < _amount ? _balance : _amount;
-  }
-
-  /// Override needed by linearization
-  /// @inheritdoc Ownable2Step
-  function _transferOwnership(address _newOwner) internal virtual override(Ownable2Step, Ownable) {
-    super._transferOwnership(_newOwner);
-  }
-
-  /// Override needed by linearization
-  /// @inheritdoc Ownable2Step
-  function transferOwnership(address _newOwner) public virtual override(Ownable2Step, Ownable) {
-    super.transferOwnership(_newOwner);
   }
 
   /// @inheritdoc IConnextVestingWallet
   function sendDust(IERC20 _token, uint256 _amount, address _to) external onlyOwner {
     if (_to == address(0)) revert ZeroAddress();
 
-    if (_token == IERC20(NEXT_TOKEN) && released(NEXT_TOKEN) != TOTAL_AMOUNT) {
+    if (_token == IERC20(NEXT_TOKEN) && released != TOTAL_AMOUNT) {
       revert NotAllowed();
     }
 

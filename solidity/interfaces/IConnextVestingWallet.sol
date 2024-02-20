@@ -107,8 +107,14 @@ interface IConnextVestingWallet {
    */
   function CLIFF() external view returns (uint64 _timestamp);
 
+  /**
+   * @notice The amount of NEXT tokens that are already released
+   * @return _released The amount of tokens released
+   */
+  function released() external view returns (uint256 _released);
+
   /*///////////////////////////////////////////////////////////////
-                            CUSTOM LOGIC
+                            VESTING LOGIC
   //////////////////////////////////////////////////////////////*/
 
   /**
@@ -126,4 +132,22 @@ interface IConnextVestingWallet {
    * @param _to     The address to send the tokens to
    */
   function sendDust(IERC20 _token, uint256 _amount, address _to) external;
+
+  /**
+   * @notice Release releasable NEXT tokens to the owner
+   */
+  function release() external;
+
+  /**
+   * @notice Calculate the amount of NEXT tokens vested at a given timestamp
+   * @param _timestamp  The timestamp to calculate the vested amount
+   * @return _amount The amount of tokens vested
+   */
+  function vestedAmount(uint64 _timestamp) external view returns (uint256 _amount);
+
+  /**
+   * @notice Calculate the amount of NEXT tokens ready to release
+   * @return _amount The amount of tokens ready to release
+   */
+  function releasable() external view returns (uint256 _amount);
 }
