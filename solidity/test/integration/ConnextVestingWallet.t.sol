@@ -40,7 +40,7 @@ contract UnitConnextVestingWallet is Test, Constants {
     vm.prank(payer);
     _llamaVest = IVestingEscrowSimple(
       _llamaVestFactory.deploy_vesting_contract(
-        NEXT_TOKEN_ADDRESS, address(_connextVestingWallet), TOTAL_AMOUNT, VESTING_DURATION, AUG_01_2022, 0
+        NEXT_TOKEN_ADDRESS, address(_connextVestingWallet), TOTAL_AMOUNT, UNLOCK_DURATION, AUG_01_2022, 0
       )
     );
 
@@ -48,7 +48,7 @@ contract UnitConnextVestingWallet is Test, Constants {
     _connextVestingWallet = new ConnextVestingWallet(owner, 13 ether);
     _connextVestingWalletAddress = address(_connextVestingWallet);
     _connextTokenLaunch = uint64(_connextVestingWallet.NEXT_TOKEN_LAUNCH());
-    _firstMilestoneTimestamp = uint64(_connextVestingWallet.VESTING_CLIFF());
+    _firstMilestoneTimestamp = uint64(_connextVestingWallet.UNLOCK_CLIFF());
   }
 
   /**

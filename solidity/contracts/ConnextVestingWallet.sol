@@ -32,22 +32,22 @@ contract ConnextVestingWallet is Ownable2Step, IConnextVestingWallet {
   address public constant NEXT_TOKEN = 0xFE67A4450907459c3e1FFf623aA927dD4e28c67a; // Mainnet NEXT token address
 
   /// @inheritdoc IConnextVestingWallet
-  uint64 public constant VESTING_DURATION = ONE_YEAR + ONE_MONTH; // 13 months duration
+  uint64 public constant UNLOCK_DURATION = ONE_YEAR + ONE_MONTH; // 13 months duration
 
   /// @inheritdoc IConnextVestingWallet
-  uint64 public constant VESTING_CLIFF_DURATION = ONE_MONTH; // 1 month cliff
+  uint64 public constant UNLOCK_CLIFF_DURATION = ONE_MONTH; // 1 month cliff
 
   /// @inheritdoc IConnextVestingWallet
-  uint64 public constant VESTING_OFFSET = ONE_YEAR - ONE_MONTH; // 11 months offset
+  uint64 public constant UNLOCK_OFFSET = ONE_YEAR - ONE_MONTH; // 11 months offset
 
   /// @inheritdoc IConnextVestingWallet
-  uint64 public constant VESTING_START = NEXT_TOKEN_LAUNCH + VESTING_OFFSET; // Aug 5th 2024
+  uint64 public constant UNLOCK_START = NEXT_TOKEN_LAUNCH + UNLOCK_OFFSET; // Sept 5th 2024 - 1 month
 
   /// @inheritdoc IConnextVestingWallet
-  uint64 public constant VESTING_CLIFF = VESTING_START + VESTING_CLIFF_DURATION; // Sept 5th 2024
+  uint64 public constant UNLOCK_CLIFF = UNLOCK_START + UNLOCK_CLIFF_DURATION; // Sept 5th 2024
 
   /// @inheritdoc IConnextVestingWallet
-  uint64 public constant VESTING_END = VESTING_START + VESTING_DURATION; // Sept 5th 2025
+  uint64 public constant UNLOCK_END = UNLOCK_START + UNLOCK_DURATION; // Sept 5th 2025
 
   /// @inheritdoc IConnextVestingWallet
   uint256 public immutable TOTAL_AMOUNT; // Set into constructor
@@ -64,7 +64,7 @@ contract ConnextVestingWallet is Ownable2Step, IConnextVestingWallet {
   }
 
   /**
-   * NOTE:  The equivalent vesting schedule has a 13 months duration, with a 1 month cliff,
+   * NOTE:  The equivalent unlock schedule has a 13 months duration, with a 1 month cliff,
    *        offsetted to start from `Sept 5th 2024 - 1 month`: At Sept 5th 2024 the cliff
    *        is triggered unlocking 1/13 of the tokens, and then 1/13 of the tokens will
    *        be linearly unlocked every month after that.
@@ -72,12 +72,12 @@ contract ConnextVestingWallet is Ownable2Step, IConnextVestingWallet {
 
   /// @inheritdoc IConnextVestingWallet
   function vestedAmount(uint64 _timestamp) public view returns (uint256 _amount) {
-    if (_timestamp < VESTING_CLIFF) {
+    if (_timestamp < UNLOCK_CLIFF) {
       return 0;
-    } else if (_timestamp >= VESTING_END) {
+    } else if (_timestamp >= UNLOCK_END) {
       return TOTAL_AMOUNT;
     } else {
-      return (TOTAL_AMOUNT * (_timestamp - VESTING_START)) / VESTING_DURATION;
+      return (TOTAL_AMOUNT * (_timestamp - UNLOCK_START)) / UNLOCK_DURATION;
     }
   }
 

@@ -67,37 +67,37 @@ interface IConnextVestingWallet {
    * @notice Vesting cliff duration
    * @return _timedelta The timedelta of the cliff duration
    */
-  function VESTING_CLIFF_DURATION() external view returns (uint64 _timedelta);
+  function UNLOCK_CLIFF_DURATION() external view returns (uint64 _timedelta);
 
   /**
    * @notice Vesting duration including cliff duration
    * @return _timedelta The timedelta of the vesting duration
    */
-  function VESTING_DURATION() external view returns (uint64 _timedelta);
+  function UNLOCK_DURATION() external view returns (uint64 _timedelta);
 
   /**
    * @notice Vesting warmup time
    * @return _timedelta The timedelta of the warmup time
    */
-  function VESTING_OFFSET() external view returns (uint64 _timedelta);
+  function UNLOCK_OFFSET() external view returns (uint64 _timedelta);
 
   /**
    * @notice Vesting start date
    * @return _timestamp The timestamp of the start date
    */
-  function VESTING_START() external view returns (uint64 _timestamp);
+  function UNLOCK_START() external view returns (uint64 _timestamp);
 
   /**
    * @notice Vesting cliff date
    * @return _timestamp The timestamp of the cliff date
    */
-  function VESTING_CLIFF() external view returns (uint64 _timestamp);
+  function UNLOCK_CLIFF() external view returns (uint64 _timestamp);
 
   /**
    * @notice Vesting end date
    * @return _timestamp The timestamp of the end date
    */
-  function VESTING_END() external view returns (uint64 _timestamp);
+  function UNLOCK_END() external view returns (uint64 _timestamp);
 
   /*///////////////////////////////////////////////////////////////
                              STORAGE
@@ -116,7 +116,7 @@ interface IConnextVestingWallet {
   function released() external view returns (uint256 _released);
 
   /*///////////////////////////////////////////////////////////////
-                            VESTING LOGIC
+                            UNLOCK LOGIC
   //////////////////////////////////////////////////////////////*/
 
   /**

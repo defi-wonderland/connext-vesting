@@ -34,7 +34,7 @@ contract IntegrationBase is Test, Constants, Deploy {
     vm.prank(payer);
     _llamaVest = IVestingEscrowSimple(
       _llamaVestFactory.deploy_vesting_contract(
-        NEXT_TOKEN_ADDRESS, address(_connextVestingWallet), TOTAL_AMOUNT, VESTING_DURATION, AUG_01_2022, 0
+        NEXT_TOKEN_ADDRESS, address(_connextVestingWallet), TOTAL_AMOUNT, UNLOCK_DURATION, AUG_01_2022, 0
       )
     );
   }
