@@ -29,7 +29,7 @@ contract ConnextVestingWallet is Ownable2Step, IConnextVestingWallet {
   uint64 public constant NEXT_TOKEN_LAUNCH = SEPT_05_2023; // Equals to Sept 5th 2023
 
   /// @inheritdoc IConnextVestingWallet
-  address public constant NEXT_TOKEN = 0xFE67A4450907459c3e1FFf623aA927dD4e28c67a; // Mainnet address
+  address public constant NEXT_TOKEN = 0xFE67A4450907459c3e1FFf623aA927dD4e28c67a; // Mainnet NEXT token address
 
   /// @inheritdoc IConnextVestingWallet
   uint64 public constant VESTING_DURATION = ONE_YEAR + ONE_MONTH; // 13 months duration
@@ -41,13 +41,13 @@ contract ConnextVestingWallet is Ownable2Step, IConnextVestingWallet {
   uint64 public constant VESTING_OFFSET = ONE_YEAR - ONE_MONTH; // 11 months offset
 
   /// @inheritdoc IConnextVestingWallet
-  uint64 public constant VESTING_START_DATE = NEXT_TOKEN_LAUNCH + VESTING_OFFSET; // Sept 5th 2024 - 1 month
+  uint64 public constant VESTING_START = NEXT_TOKEN_LAUNCH + VESTING_OFFSET; // Aug 5th 2024
 
   /// @inheritdoc IConnextVestingWallet
-  uint64 public constant VESTING_CLIFF = VESTING_START_DATE + VESTING_CLIFF_DURATION;
+  uint64 public constant VESTING_CLIFF = VESTING_START + VESTING_CLIFF_DURATION; // Sept 5th 2024
 
   /// @inheritdoc IConnextVestingWallet
-  uint64 public constant VESTING_START = VESTING_START_DATE + VESTING_DURATION;
+  uint64 public constant VESTING_END = VESTING_START + VESTING_DURATION; // Sept 5th 2025
 
   /// @inheritdoc IConnextVestingWallet
   uint256 public immutable TOTAL_AMOUNT; // Set into constructor
@@ -74,10 +74,10 @@ contract ConnextVestingWallet is Ownable2Step, IConnextVestingWallet {
   function vestedAmount(uint64 _timestamp) public view returns (uint256 _amount) {
     if (_timestamp < VESTING_CLIFF) {
       return 0;
-    } else if (_timestamp >= VESTING_START) {
+    } else if (_timestamp >= VESTING_END) {
       return TOTAL_AMOUNT;
     } else {
-      return (TOTAL_AMOUNT * (_timestamp - VESTING_START_DATE)) / VESTING_DURATION;
+      return (TOTAL_AMOUNT * (_timestamp - VESTING_START)) / VESTING_DURATION;
     }
   }
 

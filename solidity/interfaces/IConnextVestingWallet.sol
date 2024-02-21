@@ -70,7 +70,7 @@ interface IConnextVestingWallet {
   function VESTING_CLIFF_DURATION() external view returns (uint64 _timedelta);
 
   /**
-   * @notice Vesting duration including one month of cliff
+   * @notice Vesting duration including cliff duration
    * @return _timedelta The timedelta of the vesting duration
    */
   function VESTING_DURATION() external view returns (uint64 _timedelta);
@@ -85,7 +85,7 @@ interface IConnextVestingWallet {
    * @notice Vesting start date
    * @return _timestamp The timestamp of the start date
    */
-  function VESTING_START_DATE() external view returns (uint64 _timestamp);
+  function VESTING_START() external view returns (uint64 _timestamp);
 
   /**
    * @notice Vesting cliff date
@@ -94,10 +94,10 @@ interface IConnextVestingWallet {
   function VESTING_CLIFF() external view returns (uint64 _timestamp);
 
   /**
-   * @notice Vesting start date
-   * @return _timestamp The timestamp of the start date
+   * @notice Vesting end date
+   * @return _timestamp The timestamp of the end date
    */
-  function VESTING_START() external view returns (uint64 _timestamp);
+  function VESTING_END() external view returns (uint64 _timestamp);
 
   /*///////////////////////////////////////////////////////////////
                              STORAGE
