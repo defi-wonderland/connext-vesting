@@ -21,7 +21,7 @@ contract Constants {
   // Vesting info
   uint64 public constant AUG_01_2022 = 1_659_312_000; // vesting start date
   uint64 public constant SEP_05_2023 = 1_693_872_000; // launch date
-  uint64 public constant UNLOCK_DURATION = 365 days * 4;
+  uint64 public constant VESTING_DURATION = 365 days * 4;
 
   // Time
   uint64 public constant YEAR = 365 days;
