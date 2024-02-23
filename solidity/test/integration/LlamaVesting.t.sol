@@ -4,6 +4,9 @@ pragma solidity 0.8.20;
 import {IntegrationBase} from 'test/integration/IntegrationBase.sol';
 
 contract IntegrationLlamaVesting is IntegrationBase {
+  /**
+   * @notice Assert balances on key points of the timeline
+   */
   function test_VestAndUnlock() public {
     // At launch date
     uint256 _timestamp = SEP_05_2023;
