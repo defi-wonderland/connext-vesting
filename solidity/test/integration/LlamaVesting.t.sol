@@ -4,13 +4,9 @@ pragma solidity 0.8.20;
 import {IntegrationBase} from 'test/integration/IntegrationBase.sol';
 
 contract IntegrationLlamaVesting is IntegrationBase {
-  uint256 internal _vestingStartTime;
-
-  function setUp() public override {
-    super.setUp();
-    _vestingStartTime = _connextVestingWallet.start();
-  }
-
+  /**
+   * @notice Assert balances on key points of the timeline
+   */
   function test_VestAndUnlock() public {
     // At launch date
     uint256 _timestamp = SEP_05_2023;
@@ -55,14 +51,14 @@ contract IntegrationLlamaVesting is IntegrationBase {
   function _warpAndWithdraw(uint256 _timestamp) internal {
     vm.warp(_timestamp);
     _connextVestingWallet.claim(address(_llamaVest));
-    _connextVestingWallet.release(NEXT_TOKEN_ADDRESS);
+    _connextVestingWallet.release();
   }
 
   /**
    * @notice Each withdrawal should equally increase the withdrawn amount and the owner's balance
    */
   function _assertOwnerBalance(uint256 _balance) internal {
-    assertApproxEqAbs(_connextVestingWallet.released(NEXT_TOKEN_ADDRESS), _balance, MAX_DELTA);
+    assertApproxEqAbs(_connextVestingWallet.released(), _balance, MAX_DELTA);
     assertApproxEqAbs(_nextToken.balanceOf(owner), _balance, MAX_DELTA);
   }
 

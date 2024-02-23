@@ -4,7 +4,7 @@ pragma solidity 0.8.20;
 import {Ownable, Ownable2Step} from '@openzeppelin/contracts/access/Ownable2Step.sol';
 import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 
-import {ConnextVestingWallet} from 'contracts/ConnextVestingWallet.sol';
+import {ConnextVestingWallet, IConnextVestingWallet} from 'contracts/ConnextVestingWallet.sol';
 import {Constants} from 'test/utils/Constants.sol';
 
 import {IVestingEscrowSimple} from 'interfaces/IVestingEscrowSimple.sol';
@@ -48,7 +48,7 @@ contract UnitConnextVestingWallet is Test, Constants {
     _connextVestingWallet = new ConnextVestingWallet(owner, 13 ether);
     _connextVestingWalletAddress = address(_connextVestingWallet);
     _connextTokenLaunch = uint64(_connextVestingWallet.NEXT_TOKEN_LAUNCH());
-    _firstMilestoneTimestamp = uint64(_connextVestingWallet.cliff());
+    _firstMilestoneTimestamp = uint64(_connextVestingWallet.UNLOCK_CLIFF());
   }
 
   /**
@@ -70,28 +70,18 @@ contract UnitConnextVestingWallet is Test, Constants {
    *  After the end of the unlocking period: 13 ether tokens
    */
   function test_UnlockedAtTimestamp() public {
-    assertEq(_connextVestingWallet.vestedAmount(NEXT_TOKEN_ADDRESS, _connextTokenLaunch), 0);
-    assertEq(_connextVestingWallet.vestedAmount(NEXT_TOKEN_ADDRESS, _firstMilestoneTimestamp - 1), 0);
+    assertEq(_connextVestingWallet.vestedAmount(_connextTokenLaunch), 0);
+    assertEq(_connextVestingWallet.vestedAmount(_firstMilestoneTimestamp - 1), 0);
 
-    assertEq(_connextVestingWallet.vestedAmount(NEXT_TOKEN_ADDRESS, _firstMilestoneTimestamp), 1 ether);
+    assertEq(_connextVestingWallet.vestedAmount(_firstMilestoneTimestamp), 1 ether);
 
-    assertApproxEqAbs(
-      _connextVestingWallet.vestedAmount(NEXT_TOKEN_ADDRESS, _firstMilestoneTimestamp + MONTH), 2 ether, MAX_DELTA
-    );
+    assertEq(_connextVestingWallet.vestedAmount(_firstMilestoneTimestamp + MONTH), 2 ether);
 
-    assertApproxEqAbs(
-      _connextVestingWallet.vestedAmount(NEXT_TOKEN_ADDRESS, _firstMilestoneTimestamp + MONTH * 2), 3 ether, MAX_DELTA
-    );
+    assertEq(_connextVestingWallet.vestedAmount(_firstMilestoneTimestamp + MONTH * 2), 3 ether);
 
-    assertApproxEqAbs(
-      _connextVestingWallet.vestedAmount(NEXT_TOKEN_ADDRESS, _firstMilestoneTimestamp + YEAR), 13 ether, MAX_DELTA
-    );
+    assertEq(_connextVestingWallet.vestedAmount(_firstMilestoneTimestamp + YEAR), 13 ether);
 
-    assertApproxEqAbs(
-      _connextVestingWallet.vestedAmount(NEXT_TOKEN_ADDRESS, _firstMilestoneTimestamp + YEAR + 10 days),
-      13 ether,
-      MAX_DELTA
-    );
+    assertEq(_connextVestingWallet.vestedAmount(_firstMilestoneTimestamp + YEAR + 10 days), 13 ether);
   }
 
   /**
@@ -101,29 +91,29 @@ contract UnitConnextVestingWallet is Test, Constants {
   function test_WithdrawableAmount() public {
     deal(NEXT_TOKEN_ADDRESS, _connextVestingWalletAddress, 15 ether);
 
-    assertEq(_connextVestingWallet.releasable(NEXT_TOKEN_ADDRESS), 0);
+    assertEq(_connextVestingWallet.releasable(), 0);
 
     vm.warp(_connextTokenLaunch + YEAR - 1);
-    assertEq(_connextVestingWallet.releasable(NEXT_TOKEN_ADDRESS), 0);
+    assertEq(_connextVestingWallet.releasable(), 0);
 
     vm.warp(_firstMilestoneTimestamp);
-    assertEq(_connextVestingWallet.releasable(NEXT_TOKEN_ADDRESS), 1 ether);
+    assertEq(_connextVestingWallet.releasable(), 1 ether);
 
     vm.warp(_firstMilestoneTimestamp + MONTH);
-    assertApproxEqAbs(_connextVestingWallet.releasable(NEXT_TOKEN_ADDRESS), 2 ether, MAX_DELTA);
+    assertEq(_connextVestingWallet.releasable(), 2 ether);
 
-    _connextVestingWallet.release(NEXT_TOKEN_ADDRESS);
-    assertEq(_connextVestingWallet.releasable(NEXT_TOKEN_ADDRESS), 0 ether);
+    _connextVestingWallet.release();
+    assertEq(_connextVestingWallet.releasable(), 0 ether);
 
     // 2 ether have been withdrawn
     vm.warp(_firstMilestoneTimestamp + MONTH * 2);
-    assertApproxEqAbs(_connextVestingWallet.releasable(NEXT_TOKEN_ADDRESS), 3 ether - 2 ether, MAX_DELTA);
+    assertEq(_connextVestingWallet.releasable(), 3 ether - 2 ether);
 
     vm.warp(_firstMilestoneTimestamp + YEAR);
-    assertApproxEqAbs(_connextVestingWallet.releasable(NEXT_TOKEN_ADDRESS), 13 ether - 2 ether, MAX_DELTA);
+    assertEq(_connextVestingWallet.releasable(), 13 ether - 2 ether);
 
     vm.warp(_firstMilestoneTimestamp + YEAR + 10 days);
-    assertApproxEqAbs(_connextVestingWallet.releasable(NEXT_TOKEN_ADDRESS), 13 ether - 2 ether, MAX_DELTA);
+    assertEq(_connextVestingWallet.releasable(), 13 ether - 2 ether);
   }
 
   /**
@@ -135,15 +125,15 @@ contract UnitConnextVestingWallet is Test, Constants {
     vm.warp(_firstMilestoneTimestamp);
 
     vm.startPrank(owner);
-    _connextVestingWallet.release(NEXT_TOKEN_ADDRESS);
+    _connextVestingWallet.release();
 
     // Even though the contract has more tokens, the unlocked amount should be the same
-    assertEq(_connextVestingWallet.released(NEXT_TOKEN_ADDRESS), 1 ether);
+    assertEq(_connextVestingWallet.released(), 1 ether);
     assertEq(_nextToken.balanceOf(owner), 1 ether);
 
     // Try again and expect no changes
-    _connextVestingWallet.release(NEXT_TOKEN_ADDRESS);
-    assertEq(_connextVestingWallet.released(NEXT_TOKEN_ADDRESS), 1 ether);
+    _connextVestingWallet.release();
+    assertEq(_connextVestingWallet.released(), 1 ether);
     assertEq(_nextToken.balanceOf(owner), 1 ether);
 
     vm.stopPrank();
@@ -153,9 +143,9 @@ contract UnitConnextVestingWallet is Test, Constants {
    * @notice Shouldn't revert if there is nothing to withdraw
    */
   function test_Withdraw_NoSupply() public {
-    _connextVestingWallet.release(NEXT_TOKEN_ADDRESS);
+    _connextVestingWallet.release();
 
-    assertEq(_connextVestingWallet.releasable(NEXT_TOKEN_ADDRESS), 0);
+    assertEq(_connextVestingWallet.releasable(), 0);
     assertEq(_nextToken.balanceOf(owner), 0);
   }
 
@@ -202,7 +192,7 @@ contract UnitConnextVestingWallet is Test, Constants {
 
     // Can't collect the vesting token
     assertEq(_nextToken.balanceOf(_randomAddress), 0);
-    vm.expectRevert(abi.encodeWithSelector(ConnextVestingWallet.NotAllowed.selector));
+    vm.expectRevert(abi.encodeWithSelector(IConnextVestingWallet.NotAllowed.selector));
     vm.prank(owner);
     _connextVestingWallet.sendDust(_nextToken, _dustAmount, _randomAddress);
     assertEq(_nextToken.balanceOf(_randomAddress), 0);
@@ -222,7 +212,7 @@ contract UnitConnextVestingWallet is Test, Constants {
     // Collect vesting token after the vesting period has ended
     vm.warp(_firstMilestoneTimestamp + 365 days * 3 + 10 days);
     assertEq(_nextToken.balanceOf(_randomAddress), 0);
-    _connextVestingWallet.release(NEXT_TOKEN_ADDRESS);
+    _connextVestingWallet.release();
     vm.prank(owner);
     _connextVestingWallet.sendDust(_nextToken, _dustAmount, _randomAddress);
     assertEq(_nextToken.balanceOf(_randomAddress), _dustAmount);
