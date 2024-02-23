@@ -1,24 +1,41 @@
 // SPDX-License-Identifier: MIT
-pragma solidity =0.8.19;
+pragma solidity 0.8.20;
 
-import {IERC20} from 'isolmate/interfaces/tokens/IERC20.sol';
+import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import {Test} from 'forge-std/Test.sol';
 
-import {Greeter, IGreeter} from 'contracts/Greeter.sol';
+import {Deploy} from 'scripts/Deploy.sol';
+import {Constants} from 'test/utils/Constants.sol';
 
-contract IntegrationBase is Test {
-  uint256 internal constant _FORK_BLOCK = 15_452_788;
+import {IVestingEscrowSimple} from 'interfaces/IVestingEscrowSimple.sol';
+import {IVestingEscrowFactory} from 'test/utils/IVestingEscrowFactory.sol';
 
-  string internal _initialGreeting = 'hola';
-  address internal _user = makeAddr('user');
-  address internal _owner = makeAddr('owner');
-  address internal _daiWhale = 0x42f8CA49E88A8fd8F0bfA2C739e648468b8f9dec;
-  IERC20 internal _dai = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
-  IGreeter internal _greeter;
+contract IntegrationBase is Test, Constants, Deploy {
+  address public owner = _OWNER;
+  address public payer = makeAddr('payer');
 
-  function setUp() public {
-    vm.createSelectFork(vm.rpcUrl('mainnet'), _FORK_BLOCK);
-    vm.prank(_owner);
-    _greeter = new Greeter(_initialGreeting, _dai);
+  IERC20 internal _nextToken = IERC20(NEXT_TOKEN_ADDRESS);
+  IVestingEscrowFactory internal _llamaVestFactory = IVestingEscrowFactory(LLAMA_FACTORY_ADDRESS);
+  IVestingEscrowSimple internal _llamaVest;
+
+  function setUp() public virtual {
+    vm.createSelectFork(vm.rpcUrl('mainnet'), FORK_BLOCK);
+
+    // deploy
+    run();
+
+    deal(NEXT_TOKEN_ADDRESS, payer, TOTAL_AMOUNT);
+
+    // approve before deployment
+    vm.prank(payer);
+    _nextToken.approve(address(_llamaVestFactory), TOTAL_AMOUNT);
+
+    // deploy vesting contract
+    vm.prank(payer);
+    _llamaVest = IVestingEscrowSimple(
+      _llamaVestFactory.deploy_vesting_contract(
+        NEXT_TOKEN_ADDRESS, address(_connextVestingWallet), TOTAL_AMOUNT, VESTING_DURATION, AUG_01_2022, 0
+      )
+    );
   }
 }

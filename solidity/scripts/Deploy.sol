@@ -1,30 +1,28 @@
 // SPDX-License-Identifier: MIT
-pragma solidity =0.8.19;
+pragma solidity 0.8.20;
 
-import {Script} from 'forge-std/Script.sol';
-import {Greeter} from 'contracts/Greeter.sol';
-import {IERC20} from 'isolmate/interfaces/tokens/IERC20.sol';
+import {ConnextVestingWallet} from 'contracts/ConnextVestingWallet.sol';
 
-abstract contract Deploy is Script {
-  function _deploy(string memory greeting, IERC20 token) internal {
-    vm.startBroadcast();
-    new Greeter(greeting, token);
+import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
+import {Script, console} from 'forge-std/Script.sol';
+
+contract Deploy is Script {
+  ConnextVestingWallet internal _connextVestingWallet;
+
+  uint256 internal constant _TOTAL_AMOUNT = 24_960_000 ether;
+  address internal constant _OWNER = 0x74fEa3FB0eD030e9228026E7F413D66186d3D107;
+
+  function run() public {
+    address deployer = vm.rememberKey(vm.envUint('DEPLOYER_PRIVATE_KEY'));
+
+    require(_TOTAL_AMOUNT > 0, 'TOTAL_AMOUNT');
+    require(_OWNER != address(0), 'OWNER');
+
+    vm.startBroadcast(deployer);
+    _connextVestingWallet = new ConnextVestingWallet(_OWNER, _TOTAL_AMOUNT);
     vm.stopBroadcast();
-  }
-}
 
-contract DeployMainnet is Deploy {
-  function run() external {
-    IERC20 weth = IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
-
-    _deploy('some real greeting', weth);
-  }
-}
-
-contract DeployGoerli is Deploy {
-  function run() external {
-    IERC20 weth = IERC20(0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6);
-
-    _deploy('some test greeting', weth);
+    require(_connextVestingWallet.owner() == _OWNER, 'owner');
+    require(_connextVestingWallet.TOTAL_AMOUNT() == _TOTAL_AMOUNT, 'TOTAL_AMOUNT');
   }
 }
