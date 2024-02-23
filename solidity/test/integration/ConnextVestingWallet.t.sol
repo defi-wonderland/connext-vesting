@@ -75,15 +75,13 @@ contract UnitConnextVestingWallet is Test, Constants {
 
     assertEq(_connextVestingWallet.vestedAmount(_firstMilestoneTimestamp), 1 ether);
 
-    assertApproxEqAbs(_connextVestingWallet.vestedAmount(_firstMilestoneTimestamp + MONTH), 2 ether, MAX_DELTA);
+    assertEq(_connextVestingWallet.vestedAmount(_firstMilestoneTimestamp + MONTH), 2 ether);
 
-    assertApproxEqAbs(_connextVestingWallet.vestedAmount(_firstMilestoneTimestamp + MONTH * 2), 3 ether, MAX_DELTA);
+    assertEq(_connextVestingWallet.vestedAmount(_firstMilestoneTimestamp + MONTH * 2), 3 ether);
 
-    assertApproxEqAbs(_connextVestingWallet.vestedAmount(_firstMilestoneTimestamp + YEAR), 13 ether, MAX_DELTA);
+    assertEq(_connextVestingWallet.vestedAmount(_firstMilestoneTimestamp + YEAR), 13 ether);
 
-    assertApproxEqAbs(
-      _connextVestingWallet.vestedAmount(_firstMilestoneTimestamp + YEAR + 10 days), 13 ether, MAX_DELTA
-    );
+    assertEq(_connextVestingWallet.vestedAmount(_firstMilestoneTimestamp + YEAR + 10 days), 13 ether);
   }
 
   /**
@@ -102,20 +100,20 @@ contract UnitConnextVestingWallet is Test, Constants {
     assertEq(_connextVestingWallet.releasable(), 1 ether);
 
     vm.warp(_firstMilestoneTimestamp + MONTH);
-    assertApproxEqAbs(_connextVestingWallet.releasable(), 2 ether, MAX_DELTA);
+    assertEq(_connextVestingWallet.releasable(), 2 ether);
 
     _connextVestingWallet.release();
     assertEq(_connextVestingWallet.releasable(), 0 ether);
 
     // 2 ether have been withdrawn
     vm.warp(_firstMilestoneTimestamp + MONTH * 2);
-    assertApproxEqAbs(_connextVestingWallet.releasable(), 3 ether - 2 ether, MAX_DELTA);
+    assertEq(_connextVestingWallet.releasable(), 3 ether - 2 ether);
 
     vm.warp(_firstMilestoneTimestamp + YEAR);
-    assertApproxEqAbs(_connextVestingWallet.releasable(), 13 ether - 2 ether, MAX_DELTA);
+    assertEq(_connextVestingWallet.releasable(), 13 ether - 2 ether);
 
     vm.warp(_firstMilestoneTimestamp + YEAR + 10 days);
-    assertApproxEqAbs(_connextVestingWallet.releasable(), 13 ether - 2 ether, MAX_DELTA);
+    assertEq(_connextVestingWallet.releasable(), 13 ether - 2 ether);
   }
 
   /**
