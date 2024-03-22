@@ -17,7 +17,7 @@ contract UnitConnextVestingWallet is Test, Constants {
 
   ConnextVestingWallet internal _connextVestingWallet;
   address internal _connextVestingWalletAddress;
-  uint64 internal _firstMilestoneTimestamp;
+  uint64 internal _unlockCliff;
   uint64 internal _connextTokenLaunch;
 
   address public owner = makeAddr('owner');
@@ -48,7 +48,7 @@ contract UnitConnextVestingWallet is Test, Constants {
     _connextVestingWallet = new ConnextVestingWallet(owner, 13 ether);
     _connextVestingWalletAddress = address(_connextVestingWallet);
     _connextTokenLaunch = uint64(_connextVestingWallet.NEXT_TOKEN_LAUNCH());
-    _firstMilestoneTimestamp = uint64(_connextVestingWallet.UNLOCK_CLIFF());
+    _unlockCliff = uint64(_connextVestingWallet.UNLOCK_CLIFF());
   }
 
   /**
@@ -71,17 +71,17 @@ contract UnitConnextVestingWallet is Test, Constants {
    */
   function test_UnlockedAtTimestamp() public {
     assertEq(_connextVestingWallet.vestedAmount(_connextTokenLaunch), 0);
-    assertEq(_connextVestingWallet.vestedAmount(_firstMilestoneTimestamp - 1), 0);
+    assertEq(_connextVestingWallet.vestedAmount(_unlockCliff - 1), 0);
 
-    assertEq(_connextVestingWallet.vestedAmount(_firstMilestoneTimestamp), 1 ether);
+    assertEq(_connextVestingWallet.vestedAmount(_unlockCliff), 1 ether);
 
-    assertEq(_connextVestingWallet.vestedAmount(_firstMilestoneTimestamp + MONTH), 2 ether);
+    assertEq(_connextVestingWallet.vestedAmount(_unlockCliff + MONTH), 2 ether);
 
-    assertEq(_connextVestingWallet.vestedAmount(_firstMilestoneTimestamp + MONTH * 2), 3 ether);
+    assertEq(_connextVestingWallet.vestedAmount(_unlockCliff + MONTH * 2), 3 ether);
 
-    assertEq(_connextVestingWallet.vestedAmount(_firstMilestoneTimestamp + YEAR), 13 ether);
+    assertEq(_connextVestingWallet.vestedAmount(_unlockCliff + YEAR), 13 ether);
 
-    assertEq(_connextVestingWallet.vestedAmount(_firstMilestoneTimestamp + YEAR + 10 days), 13 ether);
+    assertEq(_connextVestingWallet.vestedAmount(_unlockCliff + YEAR + 10 days), 13 ether);
   }
 
   /**
@@ -96,23 +96,23 @@ contract UnitConnextVestingWallet is Test, Constants {
     vm.warp(_connextTokenLaunch + YEAR - 1);
     assertEq(_connextVestingWallet.releasable(), 0);
 
-    vm.warp(_firstMilestoneTimestamp);
+    vm.warp(_unlockCliff);
     assertEq(_connextVestingWallet.releasable(), 1 ether);
 
-    vm.warp(_firstMilestoneTimestamp + MONTH);
+    vm.warp(_unlockCliff + MONTH);
     assertEq(_connextVestingWallet.releasable(), 2 ether);
 
     _connextVestingWallet.release();
     assertEq(_connextVestingWallet.releasable(), 0 ether);
 
     // 2 ether have been withdrawn
-    vm.warp(_firstMilestoneTimestamp + MONTH * 2);
+    vm.warp(_unlockCliff + MONTH * 2);
     assertEq(_connextVestingWallet.releasable(), 3 ether - 2 ether);
 
-    vm.warp(_firstMilestoneTimestamp + YEAR);
+    vm.warp(_unlockCliff + YEAR);
     assertEq(_connextVestingWallet.releasable(), 13 ether - 2 ether);
 
-    vm.warp(_firstMilestoneTimestamp + YEAR + 10 days);
+    vm.warp(_unlockCliff + YEAR + 10 days);
     assertEq(_connextVestingWallet.releasable(), 13 ether - 2 ether);
   }
 
@@ -122,7 +122,7 @@ contract UnitConnextVestingWallet is Test, Constants {
   function test_Withdraw() public {
     // Deal more tokens that will be locked
     deal(NEXT_TOKEN_ADDRESS, _connextVestingWalletAddress, 2 ether);
-    vm.warp(_firstMilestoneTimestamp);
+    vm.warp(_unlockCliff);
 
     vm.startPrank(owner);
     _connextVestingWallet.release();
@@ -210,9 +210,17 @@ contract UnitConnextVestingWallet is Test, Constants {
     assertEq(_randomAddress.balance, _dustAmount);
 
     // Collect vesting token after the vesting period has ended
-    vm.warp(_firstMilestoneTimestamp + 365 days * 3 + 10 days);
+    vm.warp(_connextVestingWallet.UNLOCK_END());
     assertEq(_nextToken.balanceOf(_randomAddress), 0);
     _connextVestingWallet.release();
+    
+    // Can't collect the vesting token before the unlock period has ended
+    vm.warp(_connextVestingWallet.UNLOCK_END() - 1);
+    vm.expectRevert(abi.encodeWithSelector(IConnextVestingWallet.NotAllowed.selector));
+    vm.prank(owner);
+    _connextVestingWallet.sendDust(_nextToken, _dustAmount, _randomAddress);
+    // After all tokens were released AND the unlock period has ended, the dust can be collected
+    vm.warp(_connextVestingWallet.UNLOCK_END());
     vm.prank(owner);
     _connextVestingWallet.sendDust(_nextToken, _dustAmount, _randomAddress);
     assertEq(_nextToken.balanceOf(_randomAddress), _dustAmount);
