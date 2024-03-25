@@ -210,9 +210,17 @@ contract UnitConnextVestingWallet is Test, Constants {
     assertEq(_randomAddress.balance, _dustAmount);
 
     // Collect vesting token after the vesting period has ended
-    vm.warp(_firstMilestoneTimestamp + 365 days * 3 + 10 days);
+    vm.warp(_connextVestingWallet.UNLOCK_END());
     assertEq(_nextToken.balanceOf(_randomAddress), 0);
     _connextVestingWallet.release();
+
+    // Can't collect the vesting token before the unlock period has ended
+    vm.warp(_connextVestingWallet.UNLOCK_END() - 1);
+    vm.expectRevert(abi.encodeWithSelector(IConnextVestingWallet.NotAllowed.selector));
+    vm.prank(owner);
+    _connextVestingWallet.sendDust(_nextToken, _dustAmount, _randomAddress);
+    // After all tokens were released AND the unlock period has ended, the dust can be collected
+    vm.warp(_connextVestingWallet.UNLOCK_END());
     vm.prank(owner);
     _connextVestingWallet.sendDust(_nextToken, _dustAmount, _randomAddress);
     assertEq(_nextToken.balanceOf(_randomAddress), _dustAmount);
