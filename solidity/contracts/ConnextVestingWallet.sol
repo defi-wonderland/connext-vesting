@@ -103,7 +103,7 @@ contract ConnextVestingWallet is Ownable2Step, IConnextVestingWallet {
   function sendDust(IERC20 _token, uint256 _amount, address _to) external onlyOwner {
     if (_to == address(0)) revert ZeroAddress();
 
-    if (_token == NEXT_TOKEN && released != TOTAL_AMOUNT) {
+    if (_token == NEXT_TOKEN && (released != TOTAL_AMOUNT || block.timestamp < UNLOCK_END)) {
       revert NotAllowed();
     }
 
