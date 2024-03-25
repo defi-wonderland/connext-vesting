@@ -29,7 +29,7 @@ contract ConnextVestingWallet is Ownable2Step, IConnextVestingWallet {
   uint64 public constant NEXT_TOKEN_LAUNCH = SEPT_05_2023; // Equals to Sept 5th 2023
 
   /// @inheritdoc IConnextVestingWallet
-  address public constant NEXT_TOKEN = 0xFE67A4450907459c3e1FFf623aA927dD4e28c67a; // Mainnet NEXT token address
+  IERC20 public constant NEXT_TOKEN = IERC20(0xFE67A4450907459c3e1FFf623aA927dD4e28c67a); // Mainnet NEXT token address
 
   /// @inheritdoc IConnextVestingWallet
   uint64 public constant UNLOCK_DURATION = ONE_YEAR + ONE_MONTH; // 13 months duration
@@ -85,14 +85,14 @@ contract ConnextVestingWallet is Ownable2Step, IConnextVestingWallet {
   function release() public {
     uint256 _amount = releasable();
     released += _amount;
-    IERC20(NEXT_TOKEN).transfer(owner(), _amount);
-    emit ERC20Released(NEXT_TOKEN, _amount);
+    NEXT_TOKEN.transfer(owner(), _amount);
+    emit ERC20Released(address(NEXT_TOKEN), _amount);
   }
 
   /// @inheritdoc IConnextVestingWallet
   function releasable() public view returns (uint256 _amount) {
     _amount = vestedAmount(uint64(block.timestamp)) - released;
-    uint256 _balance = IERC20(NEXT_TOKEN).balanceOf(address(this));
+    uint256 _balance = NEXT_TOKEN.balanceOf(address(this));
     _amount = _balance < _amount ? _balance : _amount;
   }
 
@@ -103,7 +103,7 @@ contract ConnextVestingWallet is Ownable2Step, IConnextVestingWallet {
   function sendDust(IERC20 _token, uint256 _amount, address _to) external onlyOwner {
     if (_to == address(0)) revert ZeroAddress();
 
-    if (_token == IERC20(NEXT_TOKEN) && released != TOTAL_AMOUNT) {
+    if (_token == NEXT_TOKEN && released != TOTAL_AMOUNT) {
       revert NotAllowed();
     }
 
@@ -118,7 +118,7 @@ contract ConnextVestingWallet is Ownable2Step, IConnextVestingWallet {
    * @inheritdoc IConnextVestingWallet
    * @dev This func is needed because only the recipients can claim
    */
-  function claim(address _llamaVestAddress) external {
-    IVestingEscrowSimple(_llamaVestAddress).claim(address(this));
+  function claim(IVestingEscrowSimple _llamaVest) external {
+    _llamaVest.claim(address(this));
   }
 }

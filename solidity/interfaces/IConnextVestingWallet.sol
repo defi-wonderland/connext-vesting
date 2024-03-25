@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
+import {IVestingEscrowSimple} from './IVestingEscrowSimple.sol';
 import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 
 interface IConnextVestingWallet {
@@ -37,7 +38,7 @@ interface IConnextVestingWallet {
    * @notice NEXT token address
    * @return _nextToken The address of the NEXT token
    */
-  function NEXT_TOKEN() external view returns (address _nextToken);
+  function NEXT_TOKEN() external view returns (IERC20 _nextToken);
 
   /**
    * @notice Token launch date
@@ -121,9 +122,9 @@ interface IConnextVestingWallet {
 
   /**
    * @notice Claim tokens from Llama Vesting contract
-   * @param _llamaVestAddress  The address of the Llama Vesting contract
+   * @param _llamaVest  The address of the Llama Vesting contract
    */
-  function claim(address _llamaVestAddress) external;
+  function claim(IVestingEscrowSimple _llamaVest) external;
 
   /**
    * @notice Collect dust from the contract

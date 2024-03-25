@@ -50,7 +50,7 @@ contract IntegrationLlamaVesting is IntegrationBase {
    */
   function _warpAndWithdraw(uint256 _timestamp) internal {
     vm.warp(_timestamp);
-    _connextVestingWallet.claim(address(_llamaVest));
+    _connextVestingWallet.claim(_llamaVest);
     _connextVestingWallet.release();
   }
 
