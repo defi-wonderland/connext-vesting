@@ -4,6 +4,12 @@ The `Unlock` contract is meant to be used as a receiver of a Yearn Vesting Escro
 
 <img src="unlock.svg" alt="vesting and unlocking" align="center" />
 
+## Dependencies
+
+This contract is designed to be integrated with Yearn's [Vesting Escrow v0.3.0](https://github.com/yearn/yearn-vesting-escrow) contract, ([audited](https://github.com/yearn/yearn-security/tree/master/audits/20231013_Mixbytes_yearn_vesting_escrow)). The `ConnextVestingWallet` contract is meant to be the receiver of the tokens that are being vested.
+
+**NOTE**: This Vesting Escrow contract version is compatible with post-shangai EVM versions only (as it requires `PUSH0` compatibility).
+
 ## Setup
 
 1. Copy the `.env.example` file to `.env` and fill in the variables.
