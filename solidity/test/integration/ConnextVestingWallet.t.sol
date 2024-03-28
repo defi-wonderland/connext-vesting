@@ -24,8 +24,8 @@ contract UnitConnextVestingWallet is Test, Constants {
   address public payer = makeAddr('payer');
 
   IERC20 internal _nextToken = IERC20(NEXT_TOKEN_ADDRESS);
-  IVestingEscrowFactory internal _llamaVestFactory = IVestingEscrowFactory(LLAMA_FACTORY_ADDRESS);
-  IVestingEscrowSimple internal _llamaVest;
+  IVestingEscrowFactory internal _vestingEscrowFactory = IVestingEscrowFactory(VESTING_ESCROW_FACTORY_ADDRESS);
+  IVestingEscrowSimple internal _vestingEscrow;
 
   function setUp() public {
     vm.createSelectFork(vm.rpcUrl('mainnet'), FORK_BLOCK);
@@ -34,12 +34,12 @@ contract UnitConnextVestingWallet is Test, Constants {
 
     // approve before deployment
     vm.prank(payer);
-    _nextToken.approve(address(_llamaVestFactory), TOTAL_AMOUNT);
+    _nextToken.approve(address(_vestingEscrowFactory), TOTAL_AMOUNT);
 
     // deploy vesting contract
     vm.prank(payer);
-    _llamaVest = IVestingEscrowSimple(
-      _llamaVestFactory.deploy_vesting_contract(
+    _vestingEscrow = IVestingEscrowSimple(
+      _vestingEscrowFactory.deploy_vesting_contract(
         NEXT_TOKEN_ADDRESS, address(_connextVestingWallet), TOTAL_AMOUNT, VESTING_DURATION, AUG_01_2022, 0
       )
     );

@@ -1,6 +1,6 @@
 # Connext Unlock Contract
 
-The `Unlock` contract is meant to be used as a receiver of a LlamaPay stream. It allows the owner to unlock their vested tokens at a different rate than the vesting. The main goal of that would be to delay the unlocking of the tokens in case of an early cancellation of the vesting stream.
+The `Unlock` contract is meant to be used as a receiver of a Yearn Vesting Escrow. It allows the owner to unlock their vested tokens at a different rate than the vesting. The main goal of that would be to delay the unlocking of the tokens in case of an early cancellation of the vesting stream.
 
 <img src="unlock.svg" alt="vesting and unlocking" align="center" />
 

@@ -3,7 +3,7 @@ pragma solidity 0.8.20;
 
 import {IntegrationBase} from 'test/integration/IntegrationBase.sol';
 
-contract IntegrationLlamaVesting is IntegrationBase {
+contract IntegrationVestingEscrow is IntegrationBase {
   /**
    * @notice Assert balances on key points of the timeline
    */
@@ -50,7 +50,7 @@ contract IntegrationLlamaVesting is IntegrationBase {
    */
   function _warpAndWithdraw(uint256 _timestamp) internal {
     vm.warp(_timestamp);
-    _connextVestingWallet.claim(_llamaVest);
+    _connextVestingWallet.claim(_vestingEscrow);
     _connextVestingWallet.release();
   }
 

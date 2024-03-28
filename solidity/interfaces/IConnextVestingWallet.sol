@@ -121,10 +121,10 @@ interface IConnextVestingWallet {
   //////////////////////////////////////////////////////////////*/
 
   /**
-   * @notice Claim tokens from Llama Vesting contract
-   * @param _llamaVest  The address of the Llama Vesting contract
+   * @notice Claim tokens from Yearn Vesting Escrow contract
+   * @param _vestingEscrow  The address of the Yearn Vesting Escrow contract
    */
-  function claim(IVestingEscrowSimple _llamaVest) external;
+  function claim(IVestingEscrowSimple _vestingEscrow) external;
 
   /**
    * @notice Collect dust from the contract
