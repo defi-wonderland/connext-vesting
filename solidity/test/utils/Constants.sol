@@ -13,7 +13,7 @@ contract Constants {
 
   address public constant DAI_ADDRESS = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
   address public constant NEXT_TOKEN_ADDRESS = 0xFE67A4450907459c3e1FFf623aA927dD4e28c67a;
-  address public constant VESTING_ESCROW_FACTORY_ADDRESS = 0xB93427b83573C8F27a08A909045c3e809610411a;
+  address public constant VESTING_ESCROW_FACTORY_ADDRESS = 0x200C92Dd85730872Ab6A1e7d5E40A067066257cF;
 
   // Vesting info
   uint64 public constant AUG_01_2022 = 1_659_312_000; // vesting start date

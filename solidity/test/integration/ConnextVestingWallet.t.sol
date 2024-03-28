@@ -36,19 +36,26 @@ contract UnitConnextVestingWallet is Test, Constants {
     vm.prank(payer);
     _nextToken.approve(address(_vestingEscrowFactory), TOTAL_AMOUNT);
 
-    // deploy vesting contract
-    vm.prank(payer);
-    _vestingEscrow = IVestingEscrowSimple(
-      _vestingEscrowFactory.deploy_vesting_contract(
-        NEXT_TOKEN_ADDRESS, address(_connextVestingWallet), TOTAL_AMOUNT, VESTING_DURATION, AUG_01_2022, 0
-      )
-    );
-
     // set total amount as 13 ether
     _connextVestingWallet = new ConnextVestingWallet(owner, 13 ether);
     _connextVestingWalletAddress = address(_connextVestingWallet);
     _connextTokenLaunch = uint64(_connextVestingWallet.NEXT_TOKEN_LAUNCH());
     _firstMilestoneTimestamp = uint64(_connextVestingWallet.UNLOCK_CLIFF());
+
+    // deploy vesting contract
+    vm.prank(payer);
+    _vestingEscrow = IVestingEscrowSimple(
+      _vestingEscrowFactory.deploy_vesting_contract({
+        _token: NEXT_TOKEN_ADDRESS,
+        _recipient: address(_connextVestingWallet),
+        _amount: TOTAL_AMOUNT,
+        _vestingDuration: VESTING_DURATION,
+        _vestingStart: AUG_01_2022,
+        _cliffLength: 0,
+        _openClaim: false,
+        _supportVyper: 0
+      })
+    );
   }
 
   /**

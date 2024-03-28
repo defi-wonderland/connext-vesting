@@ -33,9 +33,16 @@ contract IntegrationBase is Test, Constants, Deploy {
     // deploy vesting contract
     vm.prank(payer);
     _vestingEscrow = IVestingEscrowSimple(
-      _vestingEscrowFactory.deploy_vesting_contract(
-        NEXT_TOKEN_ADDRESS, address(_connextVestingWallet), TOTAL_AMOUNT, VESTING_DURATION, AUG_01_2022, 0
-      )
+      _vestingEscrowFactory.deploy_vesting_contract({
+        _token: NEXT_TOKEN_ADDRESS,
+        _recipient: address(_connextVestingWallet),
+        _amount: TOTAL_AMOUNT,
+        _vestingDuration: VESTING_DURATION,
+        _vestingStart: AUG_01_2022,
+        _cliffLength: 0,
+        _openClaim: false,
+        _supportVyper: 0
+      })
     );
   }
 }
