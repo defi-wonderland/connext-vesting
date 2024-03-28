@@ -7,9 +7,6 @@ import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import {ConnextVestingWallet, IConnextVestingWallet} from 'contracts/ConnextVestingWallet.sol';
 import {Constants} from 'test/utils/Constants.sol';
 
-import {IVestingEscrowSimple} from 'interfaces/IVestingEscrowSimple.sol';
-import {IVestingEscrowFactory} from 'test/utils/IVestingEscrowFactory.sol';
-
 import {Test} from 'forge-std/Test.sol';
 
 contract UnitConnextVestingWallet is Test, Constants {
@@ -24,38 +21,15 @@ contract UnitConnextVestingWallet is Test, Constants {
   address public payer = makeAddr('payer');
 
   IERC20 internal _nextToken = IERC20(NEXT_TOKEN_ADDRESS);
-  IVestingEscrowFactory internal _vestingEscrowFactory = IVestingEscrowFactory(VESTING_ESCROW_FACTORY_ADDRESS);
-  IVestingEscrowSimple internal _vestingEscrow;
 
   function setUp() public {
     vm.createSelectFork(vm.rpcUrl('mainnet'), FORK_BLOCK);
-
-    deal(NEXT_TOKEN_ADDRESS, payer, TOTAL_AMOUNT);
-
-    // approve before deployment
-    vm.prank(payer);
-    _nextToken.approve(address(_vestingEscrowFactory), TOTAL_AMOUNT);
 
     // set total amount as 13 ether
     _connextVestingWallet = new ConnextVestingWallet(owner, 13 ether);
     _connextVestingWalletAddress = address(_connextVestingWallet);
     _connextTokenLaunch = uint64(_connextVestingWallet.NEXT_TOKEN_LAUNCH());
     _firstMilestoneTimestamp = uint64(_connextVestingWallet.UNLOCK_CLIFF());
-
-    // deploy vesting contract
-    vm.prank(payer);
-    _vestingEscrow = IVestingEscrowSimple(
-      _vestingEscrowFactory.deploy_vesting_contract({
-        _token: NEXT_TOKEN_ADDRESS,
-        _recipient: address(_connextVestingWallet),
-        _amount: TOTAL_AMOUNT,
-        _vestingDuration: VESTING_DURATION,
-        _vestingStart: AUG_01_2022,
-        _cliffLength: 0,
-        _openClaim: false,
-        _supportVyper: 0
-      })
-    );
   }
 
   /**
