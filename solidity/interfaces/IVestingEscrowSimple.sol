@@ -140,9 +140,9 @@ interface IVestingEscrowSimple {
 
   /**
    * @notice Returns the total amount of tokens claimed by the recipient.
-   * @return totalClaimed The total amount of claimed tokens.
+   * @return _totalClaimed The total amount of claimed tokens.
    */
-  function total_claimed() external view returns (uint256 totalClaimed);
+  function total_claimed() external view returns (uint256 _totalClaimed);
 
   /**
    * @notice Returns the timestamp at which the token flow was disabled, if ever.
@@ -164,7 +164,7 @@ interface IVestingEscrowSimple {
 
   /**
    * @notice Returns the address of the owner.
-   * @return owner The address of the owner.
+   * @return _owner The address of the owner.
    */
-  function owner() external view returns (address owner);
+  function owner() external view returns (address _owner);
 }
