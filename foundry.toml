@@ -10,6 +10,7 @@ sort_imports = true
 
 [profile.default]
 solc_version = '0.8.20'
+evm_version = 'shanghai'
 src = 'solidity'
 test = 'solidity/test'
 out = 'out'

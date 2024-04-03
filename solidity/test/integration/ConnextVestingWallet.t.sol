@@ -7,9 +7,6 @@ import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import {ConnextVestingWallet, IConnextVestingWallet} from 'contracts/ConnextVestingWallet.sol';
 import {Constants} from 'test/utils/Constants.sol';
 
-import {IVestingEscrowSimple} from 'interfaces/IVestingEscrowSimple.sol';
-import {IVestingEscrowFactory} from 'test/utils/IVestingEscrowFactory.sol';
-
 import {Test} from 'forge-std/Test.sol';
 
 contract UnitConnextVestingWallet is Test, Constants {
@@ -24,25 +21,9 @@ contract UnitConnextVestingWallet is Test, Constants {
   address public payer = makeAddr('payer');
 
   IERC20 internal _nextToken = IERC20(NEXT_TOKEN_ADDRESS);
-  IVestingEscrowFactory internal _llamaVestFactory = IVestingEscrowFactory(LLAMA_FACTORY_ADDRESS);
-  IVestingEscrowSimple internal _llamaVest;
 
   function setUp() public {
     vm.createSelectFork(vm.rpcUrl('mainnet'), FORK_BLOCK);
-
-    deal(NEXT_TOKEN_ADDRESS, payer, TOTAL_AMOUNT);
-
-    // approve before deployment
-    vm.prank(payer);
-    _nextToken.approve(address(_llamaVestFactory), TOTAL_AMOUNT);
-
-    // deploy vesting contract
-    vm.prank(payer);
-    _llamaVest = IVestingEscrowSimple(
-      _llamaVestFactory.deploy_vesting_contract(
-        NEXT_TOKEN_ADDRESS, address(_connextVestingWallet), TOTAL_AMOUNT, VESTING_DURATION, AUG_01_2022, 0
-      )
-    );
 
     // set total amount as 13 ether
     _connextVestingWallet = new ConnextVestingWallet(owner, 13 ether);

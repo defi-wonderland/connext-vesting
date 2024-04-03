@@ -118,7 +118,7 @@ contract ConnextVestingWallet is Ownable2Step, IConnextVestingWallet {
    * @inheritdoc IConnextVestingWallet
    * @dev This func is needed because only the recipients can claim
    */
-  function claim(IVestingEscrowSimple _llamaVest) external {
-    _llamaVest.claim(address(this));
+  function claim(IVestingEscrowSimple _vestingEscrow) external {
+    _vestingEscrow.claim(address(this));
   }
 }
