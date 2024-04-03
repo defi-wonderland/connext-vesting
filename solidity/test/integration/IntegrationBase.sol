@@ -15,8 +15,8 @@ contract IntegrationBase is Test, Constants, Deploy {
   address public payer = makeAddr('payer');
 
   IERC20 internal _nextToken = IERC20(NEXT_TOKEN_ADDRESS);
-  IVestingEscrowFactory internal _llamaVestFactory = IVestingEscrowFactory(LLAMA_FACTORY_ADDRESS);
-  IVestingEscrowSimple internal _llamaVest;
+  IVestingEscrowFactory internal _vestingEscrowFactory = IVestingEscrowFactory(VESTING_ESCROW_FACTORY_ADDRESS);
+  IVestingEscrowSimple internal _vestingEscrow;
 
   function setUp() public virtual {
     vm.createSelectFork(vm.rpcUrl('mainnet'), FORK_BLOCK);
@@ -28,14 +28,21 @@ contract IntegrationBase is Test, Constants, Deploy {
 
     // approve before deployment
     vm.prank(payer);
-    _nextToken.approve(address(_llamaVestFactory), TOTAL_AMOUNT);
+    _nextToken.approve(address(_vestingEscrowFactory), TOTAL_AMOUNT);
 
     // deploy vesting contract
     vm.prank(payer);
-    _llamaVest = IVestingEscrowSimple(
-      _llamaVestFactory.deploy_vesting_contract(
-        NEXT_TOKEN_ADDRESS, address(_connextVestingWallet), TOTAL_AMOUNT, VESTING_DURATION, AUG_01_2022, 0
-      )
+    _vestingEscrow = IVestingEscrowSimple(
+      _vestingEscrowFactory.deploy_vesting_contract({
+        _token: NEXT_TOKEN_ADDRESS,
+        _recipient: address(_connextVestingWallet),
+        _amount: TOTAL_AMOUNT,
+        _vestingDuration: VESTING_DURATION,
+        _vestingStart: AUG_01_2022,
+        _cliffLength: 0,
+        _openClaim: false,
+        _supportVyper: 0
+      })
     );
   }
 }
